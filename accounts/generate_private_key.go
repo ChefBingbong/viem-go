@@ -10,5 +10,5 @@ func GeneratePrivateKey() string {
 	if err != nil {
 		panic(err)
 	}
-	return utils.BytesToHex(privateKey)
+	return utils.FromBytes(privateKey).ToHex()
 }
