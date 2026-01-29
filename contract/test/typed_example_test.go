@@ -21,12 +21,12 @@ import (
 // Each field is a method descriptor with its return type encoded in the generic parameter.
 type ERC20Methods struct {
 	// Read methods (view/pure functions)
-	Name        contract.ReadString   // returns string
-	Symbol      contract.ReadString   // returns string
-	Decimals    contract.ReadUint8    // returns uint8
-	TotalSupply contract.ReadBigInt   // returns *big.Int
-	BalanceOf   contract.ReadBigInt   // returns *big.Int
-	Allowance   contract.ReadBigInt   // returns *big.Int
+	Name        contract.ReadString // returns string
+	Symbol      contract.ReadString // returns string
+	Decimals    contract.ReadUint8  // returns uint8
+	TotalSupply contract.ReadBigInt // returns *big.Int
+	BalanceOf   contract.ReadBigInt // returns *big.Int
+	Allowance   contract.ReadBigInt // returns *big.Int
 
 	// Write methods (state-changing functions)
 	Transfer     contract.WriteMethod

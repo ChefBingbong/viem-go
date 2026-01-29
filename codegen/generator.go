@@ -78,6 +78,7 @@ type FunctionData struct {
 	IsReadOnly      bool
 	StateMutability string
 	Signature       string
+	TypedMethod     string // e.g., "contract.ReadBigInt" or "contract.WriteMethod"
 }
 
 // EventData holds data for a single event.
@@ -140,6 +141,9 @@ func (g *Generator) buildTemplateData() TemplateData {
 				GoType: solidityToGoType(output.Type),
 			})
 		}
+
+		// Determine typed method descriptor
+		fnData.TypedMethod = getTypedMethodDescriptor(fnData)
 
 		data.Functions = append(data.Functions, fnData)
 	}
@@ -290,4 +294,41 @@ var templateFuncs = template.FuncMap{
 	"add": func(a, b int) int {
 		return a + b
 	},
+}
+
+// getTypedMethodDescriptor returns the typed method descriptor type for a function.
+// For read-only functions, returns "contract.ReadMethod[ReturnType]" or a type alias.
+// For write functions, returns "contract.WriteMethod".
+func getTypedMethodDescriptor(fn FunctionData) string {
+	if !fn.IsReadOnly {
+		return "contract.WriteMethod"
+	}
+
+	// For read-only functions, determine the return type
+	if len(fn.Outputs) == 0 {
+		return "contract.ReadMethod[struct{}]"
+	}
+
+	returnType := fn.Outputs[0].GoType
+
+	// Map common types to type aliases for cleaner output
+	switch returnType {
+	case "*big.Int":
+		return "contract.ReadBigInt"
+	case "common.Address":
+		return "contract.ReadAddress"
+	case "bool":
+		return "contract.ReadBool"
+	case "string":
+		return "contract.ReadString"
+	case "[]byte":
+		return "contract.ReadBytes"
+	case "uint8":
+		return "contract.ReadUint8"
+	case "uint64":
+		return "contract.ReadUint64"
+	default:
+		// For other types, use the generic form
+		return fmt.Sprintf("contract.ReadMethod[%s]", returnType)
+	}
 }

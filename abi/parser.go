@@ -29,11 +29,18 @@ func Parse(jsonABI []byte) (*ABI, error) {
 		var selector [4]byte
 		copy(selector[:], method.ID)
 
+		// Determine state mutability - check both modern StateMutability and legacy Constant field
+		stateMut := parseGethStateMutability(method.StateMutability)
+		if method.Constant && stateMut == NonPayable {
+			// Legacy ABI with constant:true but no stateMutability field
+			stateMut = View
+		}
+
 		a.Functions[name] = Function{
 			Name:            method.Name,
 			Inputs:          convertGethArgumentsToParameters(method.Inputs),
 			Outputs:         convertGethArgumentsToParameters(method.Outputs),
-			StateMutability: parseGethStateMutability(method.StateMutability),
+			StateMutability: stateMut,
 			Selector:        selector,
 			Signature:       method.Sig,
 		}

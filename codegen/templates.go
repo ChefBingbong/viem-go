@@ -22,9 +22,30 @@ var (
 // ContractABI is the ABI of the {{.ContractName}} contract.
 var ContractABI = ` + "`" + `{{.ABIJSON}}` + "`" + `
 
+// ============================================================================
+// Typed Method Descriptors
+// ============================================================================
+
+// {{.ContractName}}Methods defines typed method descriptors for the {{.ContractName}} contract.
+// Use these with contract.ReadTyped() and contract.WriteTyped() for type-safe calls.
+type {{.ContractName}}Methods struct {
+{{range .Functions}}	{{.GoName}} {{.TypedMethod}}
+{{end}}}
+
+// Methods is the typed method descriptors instance for {{.ContractName}}.
+// Use with contract.ReadTyped(c.Contract(), ctx, Methods.MethodName, args...)
+var Methods = {{.ContractName}}Methods{
+{{range .Functions}}	{{.GoName}}: {{.TypedMethod}}{Name: "{{.Name}}"},
+{{end}}}
+
+// ============================================================================
+// Contract Binding
+// ============================================================================
+
 // {{.ContractName}} is a binding to the {{.ContractName}} contract.
 type {{.ContractName}} struct {
 	contract *contract.Contract
+	M        {{.ContractName}}Methods // Typed method descriptors
 }
 
 // New creates a new {{.ContractName}} contract binding.
@@ -33,7 +54,7 @@ func New(address common.Address, c *client.Client) (*{{.ContractName}}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &{{.ContractName}}{contract: cont}, nil
+	return &{{.ContractName}}{contract: cont, M: Methods}, nil
 }
 
 // MustNew creates a new {{.ContractName}} contract binding, panicking on error.
