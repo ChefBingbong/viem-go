@@ -68,3 +68,27 @@ jobs:
           fail_ci_if_error: false
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  examples:
+    name: Examples (TypeScript)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        working-directory: examples
+        run: bun install
+
+      - name: Type check
+        working-directory: examples
+        run: bun run check
+
+      - name: Lint
+        working-directory: examples
+        run: bun run lint
