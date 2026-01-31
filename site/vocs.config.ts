@@ -2,11 +2,14 @@ import { defineConfig } from 'vocs'
 
 export default defineConfig({
   title: 'viem-go',
-  titleTemplate: '%s | viem-go',
+  titleTemplate: '%s · viem-go',
   description: 'Go Interface for Ethereum',
+  accentColor: 'light-dark(#ff9318, #ffc517)',
+  iconUrl: { light: '/favicons/light.png', dark: '/favicons/dark.png' },
+  logoUrl: { light: '/icon-light.png', dark: '/icon-dark.png' },
   rootDir: '.',
   topNav: [
-    { text: 'Docs', link: '/docs/getting-started' },
+    { text: 'Docs', link: '/docs/getting-started', match: '/docs' },
     { text: 'Examples', link: '/docs/examples' },
   ],
   socials: [

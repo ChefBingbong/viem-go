@@ -2,6 +2,7 @@
   "name": "viem-go-docs",
   "private": true,
   "type": "module",
+  "version": "0.0.1",
   "scripts": {
     "dev": "vocs dev",
     "build": "vocs build",
