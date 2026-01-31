@@ -15,36 +15,6 @@ Go Interface for Ethereum - inspired by [viem](https://viem.sh)
 go get github.com/ChefBingbong/viem-go
 ```
 
-## Quick Start
-
-```go
-package main
-
-import (
-    "context"
-    "fmt"
-    "log"
-
-    "github.com/ChefBingbong/viem-go/client"
-)
-
-func main() {
-    // Create a client
-    c, err := client.NewClient("https://eth.llamarpc.com")
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer c.Close()
-
-    // Get block number
-    blockNumber, err := c.GetBlockNumber(context.Background())
-    if err != nil {
-        log.Fatal(err)
-    }
-    fmt.Println("Block number:", blockNumber)
-}
-```
-
 ## Side-by-Side Comparison: viem vs viem-go
 
 ### Creating a Client
@@ -69,11 +39,7 @@ import (
     "github.com/ChefBingbong/viem-go/client"
 )
 
-c, err := client.NewClient("https://eth.llamarpc.com")
-if err != nil {
-    log.Fatal(err)
-}
-defer c.Close()
+c, _ := client.NewClient("https://eth.llamarpc.com")
 
 blockNumber, err := c.GetBlockNumber(context.Background())
 ```
@@ -98,7 +64,27 @@ const balance = await client.readContract({
 })
 ```
 
-**viem-go**
+**viem-go (viem-style API)**
+```go
+import (
+    "context"
+    "github.com/ethereum/go-ethereum/common"
+    "github.com/ChefBingbong/viem-go/client"
+)
+
+c, _ := client.NewClient("https://eth.llamarpc.com")
+defer c.Close()
+
+result, err := c.ReadContract(context.Background(), client.ReadContractOptions{
+    Address:      common.HexToAddress("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"),
+    ABI:          `[{"name":"balanceOf","type":"function","inputs":[{"name":"owner","type":"address"}],"outputs":[{"type":"uint256"}]}]`,
+    FunctionName: "balanceOf",
+    Args:         []any{common.HexToAddress("0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045")},
+})
+balance := result[0].(*big.Int)
+```
+
+**viem-go (typed contract bindings)**
 ```go
 import (
     "context"
