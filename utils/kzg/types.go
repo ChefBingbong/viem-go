@@ -21,8 +21,8 @@ type Kzg interface {
 // KzgFunctions contains the KZG function implementations.
 // This is used when you have separate functions instead of a struct implementing Kzg.
 type KzgFunctions struct {
-	BlobToKzgCommitmentFn   func(blob []byte) ([]byte, error)
-	ComputeBlobKzgProofFn   func(blob []byte, commitment []byte) ([]byte, error)
+	BlobToKzgCommitmentFn func(blob []byte) ([]byte, error)
+	ComputeBlobKzgProofFn func(blob []byte, commitment []byte) ([]byte, error)
 }
 
 // BlobToKzgCommitment implements Kzg interface.

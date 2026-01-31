@@ -3,8 +3,9 @@ package abi_test
 import (
 	"math/big"
 
-	"github.com/ChefBingbong/viem-go/abi"
 	"github.com/ethereum/go-ethereum/common"
+
+	"github.com/ChefBingbong/viem-go/abi"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -23,7 +24,7 @@ var _ = Describe("DecodeErrorResult", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(result.ErrorName).To(Equal("SoldOutError"))
 			// Args can be nil or empty slice depending on go-ethereum version
-			Expect(result.Args == nil || len(result.Args) == 0).To(BeTrue())
+			Expect(len(result.Args) == 0).To(BeTrue())
 		})
 
 		It("should decode AccessDeniedError(string)", func() {

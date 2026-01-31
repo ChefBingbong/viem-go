@@ -8,8 +8,9 @@ import (
 	"testing"
 	"testing/quick"
 
-	"github.com/ChefBingbong/viem-go/crypto"
 	"github.com/renproject/surge"
+
+	"github.com/ChefBingbong/viem-go/crypto"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

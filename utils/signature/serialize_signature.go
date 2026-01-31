@@ -88,6 +88,8 @@ func getYParity(sig *Signature) (int, error) {
 }
 
 // padLeft pads a string with zeros on the left to reach the target length.
+//
+//nolint:unparam // length parameter kept for API consistency
 func padLeft(s string, length int) string {
 	if len(s) >= length {
 		return s

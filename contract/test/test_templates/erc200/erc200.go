@@ -4,9 +4,10 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/ChefBingbong/viem-go/client"
 	"github.com/ChefBingbong/viem-go/contract"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 // Suppress unused import warnings

@@ -2,7 +2,6 @@ package signature
 
 import (
 	"fmt"
-	"math/big"
 	"strings"
 )
 
@@ -38,19 +37,4 @@ func ParseCompactSignatureBytes(sig []byte) (*CompactSignature, error) {
 		return nil, fmt.Errorf("%w: expected 64 bytes, got %d", ErrInvalidSignatureLength, len(sig))
 	}
 	return ParseCompactSignature(bytesToHex(sig))
-}
-
-// numberToHex converts a big.Int to a hex string with optional size padding.
-func numberToHex(n *big.Int, size int) string {
-	if n == nil {
-		return "0x0"
-	}
-	hexStr := n.Text(16)
-	if size > 0 {
-		targetLen := size * 2
-		if len(hexStr) < targetLen {
-			hexStr = strings.Repeat("0", targetLen-len(hexStr)) + hexStr
-		}
-	}
-	return "0x" + hexStr
 }

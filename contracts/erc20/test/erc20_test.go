@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"math/big"
 
-	"github.com/ChefBingbong/viem-go/client"
-	"github.com/ChefBingbong/viem-go/contracts/erc20"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+
+	"github.com/ChefBingbong/viem-go/client"
+	"github.com/ChefBingbong/viem-go/contracts/erc20"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

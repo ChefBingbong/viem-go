@@ -291,12 +291,12 @@ func appendSignature(fields []any, tx *Transaction, signature *Signature) []any 
 
 	yParity := sig.YParity
 	if sig.V != nil {
-		v := sig.V.Int64()
-		if v == 0 || v == 1 {
+		switch v := sig.V.Int64(); v {
+		case 0, 1:
 			yParity = int(v)
-		} else if v == 27 {
+		case 27:
 			yParity = 0
-		} else if v == 28 {
+		case 28:
 			yParity = 1
 		}
 	}
@@ -317,6 +317,8 @@ func appendSignature(fields []any, tx *Transaction, signature *Signature) []any 
 }
 
 // serializeAuthorizationList serializes an EIP-7702 authorization list.
+//
+//nolint:unparam // error kept for future validation
 func serializeAuthorizationList(authList []SignedAuthorization) ([]any, error) {
 	if len(authList) == 0 {
 		return []any{}, nil

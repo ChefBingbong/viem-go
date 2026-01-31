@@ -114,14 +114,14 @@ var _ = Describe("Formatters", func() {
 	Describe("FormatBlock", func() {
 		It("should format a basic block", func() {
 			rpcBlock := formatters.RpcBlock{
-				Number:          "0x100",
-				Hash:            "0xblockhash",
-				Timestamp:       "0x5f5e100",
-				GasLimit:        "0x1c9c380",
-				GasUsed:         "0x5208",
-				BaseFeePerGas:   "0x3b9aca00",
-				Nonce:           "0x0",
-				Miner:           "0xminer",
+				Number:        "0x100",
+				Hash:          "0xblockhash",
+				Timestamp:     "0x5f5e100",
+				GasLimit:      "0x1c9c380",
+				GasUsed:       "0x5208",
+				BaseFeePerGas: "0x3b9aca00",
+				Nonce:         "0x0",
+				Miner:         "0xminer",
 			}
 
 			block := formatters.FormatBlock(rpcBlock)

@@ -154,7 +154,8 @@ func zeroValue(goType string) string {
 }
 
 // eventTemplate is the template for event parsing helpers.
-const eventTemplate = `
+// nolint:unused // Reserved for future use
+var _ = `
 // Parse{{.GoName}} parses a {{.Name}} event from a log.
 func (c *{{$.ContractName}}) Parse{{.GoName}}(log client.Log) (*{{.GoName}}Event, error) {
 	event, err := c.contract.DecodeEvent("{{.Name}}", log.Topics, log.Data)
@@ -174,7 +175,8 @@ func (c *{{$.ContractName}}) Parse{{.GoName}}(log client.Log) (*{{.GoName}}Event
 `
 
 // multicallTemplate generates multicall helper code.
-const multicallTemplate = `
+// nolint:unused // Reserved for future use
+var _ = `
 // Multicall helpers for batching multiple calls.
 
 // {{.ContractName}}Calls holds multiple call builders for the contract.

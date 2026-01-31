@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/ChefBingbong/viem-go/abi"
 	"github.com/ChefBingbong/viem-go/client"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 // WriteOptions contains options for write operations.

@@ -16,11 +16,11 @@ import (
 //	tx := FormatTransaction(rpcTx)
 func FormatTransaction(tx RpcTransaction) Transaction {
 	result := Transaction{
-		From:    tx.From,
-		Hash:    tx.Hash,
-		Input:   tx.Input,
-		R:       tx.R,
-		S:       tx.S,
+		From:  tx.From,
+		Hash:  tx.Hash,
+		Input: tx.Input,
+		R:     tx.R,
+		S:     tx.S,
 	}
 
 	// Block hash
@@ -185,7 +185,7 @@ func formatAuthorizationList(authList []any) []SignedAuthorization {
 	for _, auth := range authList {
 		if authMap, ok := auth.(map[string]any); ok {
 			sa := SignedAuthorization{}
-			
+
 			if addr, ok := authMap["address"].(string); ok {
 				sa.Address = addr
 			}
@@ -204,7 +204,7 @@ func formatAuthorizationList(authList []any) []SignedAuthorization {
 			if yParity, ok := authMap["yParity"].(string); ok {
 				sa.YParity = hexToInt(yParity)
 			}
-			
+
 			result = append(result, sa)
 		}
 	}

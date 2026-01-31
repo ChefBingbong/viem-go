@@ -76,10 +76,10 @@ type TypedDataField struct {
 
 // TypedDataDefinition represents the full EIP-712 typed data.
 type TypedDataDefinition struct {
-	Domain      TypedDataDomain               `json:"domain"`
-	Types       map[string][]TypedDataField   `json:"types"`
-	PrimaryType string                        `json:"primaryType"`
-	Message     map[string]any                `json:"message"`
+	Domain      TypedDataDomain             `json:"domain"`
+	Types       map[string][]TypedDataField `json:"types"`
+	PrimaryType string                      `json:"primaryType"`
+	Message     map[string]any              `json:"message"`
 }
 
 // Constants

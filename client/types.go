@@ -381,8 +381,8 @@ func (e *RPCError) Error() string {
 
 // FilterQuery represents parameters for eth_getLogs.
 type FilterQuery struct {
-	FromBlock BlockNumber     `json:"fromBlock,omitempty"`
-	ToBlock   BlockNumber     `json:"toBlock,omitempty"`
+	FromBlock BlockNumber      `json:"fromBlock,omitempty"`
+	ToBlock   BlockNumber      `json:"toBlock,omitempty"`
 	Addresses []common.Address `json:"address,omitempty"`
 	Topics    [][]common.Hash  `json:"topics,omitempty"`
 }

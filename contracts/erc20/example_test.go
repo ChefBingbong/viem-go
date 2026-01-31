@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/ChefBingbong/viem-go/client"
 	"github.com/ChefBingbong/viem-go/contract"
 	"github.com/ChefBingbong/viem-go/contracts/erc20"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 // This example demonstrates how to use the ERC20 contract bindings

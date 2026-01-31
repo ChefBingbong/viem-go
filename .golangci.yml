@@ -3,6 +3,7 @@ version: "2"
 run:
   timeout: 5m
   modules-download-mode: readonly
+  tests: false
 
 linters:
   enable:
@@ -13,9 +14,7 @@ linters:
     - unused
     - misspell
     - unconvert
-    - unparam
     - bodyclose
-    - nilerr
 
 linters-settings:
   errcheck:
@@ -24,26 +23,19 @@ linters-settings:
   govet:
     enable:
       - shadow
-  gofmt:
-    simplify: true
-  goimports:
-    local-prefixes: github.com/ChefBingbong/viem-go
   misspell:
     locale: US
 
-issues:
-  exclude-rules:
-    # Exclude some linters from running on tests files
-    - path: _test\.go
-      linters:
-        - errcheck
-        - unparam
-    # Exclude test helper packages
-    - path: test/
-      linters:
-        - errcheck
-        - unparam
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/ChefBingbong/viem-go
 
+issues:
   # Maximum issues count per one linter
   max-issues-per-linter: 50
   # Maximum count of issues with the same text

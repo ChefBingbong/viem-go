@@ -92,7 +92,7 @@ func (t *HTTPTransport) Call(ctx context.Context, method string, params ...any) 
 	if err != nil {
 		return nil, fmt.Errorf("HTTP request failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// Read response body
 	respBody, err := io.ReadAll(resp.Body)
@@ -193,7 +193,7 @@ func (b *BatchTransport) BatchCall(ctx context.Context, requests []BatchRequest)
 	if err != nil {
 		return nil, fmt.Errorf("HTTP request failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// Read response body
 	respBody, err := io.ReadAll(resp.Body)
@@ -237,6 +237,8 @@ func (b *BatchTransport) BatchCall(ctx context.Context, requests []BatchRequest)
 }
 
 // sequentialCall falls back to sequential calls when batch is not supported.
+//
+//nolint:unparam // error is always nil as errors are captured in BatchResponse.Error
 func (b *BatchTransport) sequentialCall(ctx context.Context, requests []BatchRequest) ([]BatchResponse, error) {
 	results := make([]BatchResponse, len(requests))
 	for i, req := range requests {

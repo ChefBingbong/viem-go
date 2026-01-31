@@ -3,9 +3,10 @@ package utils_test
 import (
 	"math/big"
 
-	"github.com/ChefBingbong/viem-go/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/ChefBingbong/viem-go/utils"
 )
 
 var _ = Describe("Bytes Utils", func() {

@@ -1,10 +1,11 @@
 package accounts_test
 
 import (
-	"github.com/ChefBingbong/viem-go/accounts"
-	"github.com/ChefBingbong/viem-go/crypto"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/ChefBingbong/viem-go/accounts"
+	"github.com/ChefBingbong/viem-go/crypto"
 )
 
 var _ = Describe("Generate Private Key", func() {
@@ -18,6 +19,7 @@ var _ = Describe("Generate Private Key", func() {
 		// Known test vector - this is a well-known test private key (DO NOT use in production!)
 		const testPrivKeyHex = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 		const expectedAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+		_ = expectedAddress // Used for documentation purposes
 
 		It("should create a key from hex and derive correct address", func() {
 			privKey, err := crypto.PrivKeyFromHex(testPrivKeyHex)

@@ -3,9 +3,10 @@ package contract
 import (
 	"fmt"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/ChefBingbong/viem-go/abi"
 	"github.com/ChefBingbong/viem-go/client"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 // Contract represents a smart contract instance with ABI and client.

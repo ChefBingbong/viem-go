@@ -3,8 +3,9 @@ package address_test
 import (
 	"testing"
 
-	"github.com/ChefBingbong/viem-go/utils/address"
 	"golang.org/x/crypto/sha3"
+
+	"github.com/ChefBingbong/viem-go/utils/address"
 )
 
 func TestIsAddress(t *testing.T) {

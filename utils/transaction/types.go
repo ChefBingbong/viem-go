@@ -18,19 +18,19 @@ const (
 
 // Common errors
 var (
-	ErrInvalidAddress                    = errors.New("invalid address")
-	ErrInvalidChainId                    = errors.New("invalid chain ID")
-	ErrFeeCapTooHigh                     = errors.New("fee cap too high")
-	ErrTipAboveFeeCap                    = errors.New("tip above fee cap")
-	ErrInvalidSerializedTransactionType  = errors.New("invalid serialized transaction type")
-	ErrInvalidSerializableTransaction    = errors.New("invalid serializable transaction")
-	ErrInvalidSerializedTransaction      = errors.New("invalid serialized transaction")
-	ErrInvalidStorageKeySize             = errors.New("invalid storage key size")
-	ErrInvalidLegacyV                    = errors.New("invalid legacy v value")
-	ErrEmptyBlob                         = errors.New("empty blob")
-	ErrInvalidVersionedHashSize          = errors.New("invalid versioned hash size")
-	ErrInvalidVersionedHashVersion       = errors.New("invalid versioned hash version")
-	ErrMaxFeePerGasNotAllowed            = errors.New("maxFeePerGas/maxPriorityFeePerGas is not allowed for this transaction type")
+	ErrInvalidAddress                   = errors.New("invalid address")
+	ErrInvalidChainId                   = errors.New("invalid chain ID")
+	ErrFeeCapTooHigh                    = errors.New("fee cap too high")
+	ErrTipAboveFeeCap                   = errors.New("tip above fee cap")
+	ErrInvalidSerializedTransactionType = errors.New("invalid serialized transaction type")
+	ErrInvalidSerializableTransaction   = errors.New("invalid serializable transaction")
+	ErrInvalidSerializedTransaction     = errors.New("invalid serialized transaction")
+	ErrInvalidStorageKeySize            = errors.New("invalid storage key size")
+	ErrInvalidLegacyV                   = errors.New("invalid legacy v value")
+	ErrEmptyBlob                        = errors.New("empty blob")
+	ErrInvalidVersionedHashSize         = errors.New("invalid versioned hash size")
+	ErrInvalidVersionedHashVersion      = errors.New("invalid versioned hash version")
+	ErrMaxFeePerGasNotAllowed           = errors.New("maxFeePerGas/maxPriorityFeePerGas is not allowed for this transaction type")
 )
 
 // MaxUint256 is 2^256 - 1
@@ -73,13 +73,13 @@ type Signature struct {
 
 // TransactionBase contains common transaction fields.
 type TransactionBase struct {
-	Type     TransactionType `json:"type,omitempty"`
-	ChainId  int             `json:"chainId,omitempty"`
-	Nonce    int             `json:"nonce,omitempty"`
-	To       string          `json:"to,omitempty"`
-	Value    *big.Int        `json:"value,omitempty"`
-	Data     string          `json:"data,omitempty"`
-	Gas      *big.Int        `json:"gas,omitempty"`
+	Type    TransactionType `json:"type,omitempty"`
+	ChainId int             `json:"chainId,omitempty"`
+	Nonce   int             `json:"nonce,omitempty"`
+	To      string          `json:"to,omitempty"`
+	Value   *big.Int        `json:"value,omitempty"`
+	Data    string          `json:"data,omitempty"`
+	Gas     *big.Int        `json:"gas,omitempty"`
 
 	// Signature fields
 	R       string   `json:"r,omitempty"`
@@ -149,9 +149,9 @@ type Transaction struct {
 	AccessList AccessList `json:"accessList,omitempty"`
 
 	// EIP-4844 fields
-	MaxFeePerBlobGas    *big.Int `json:"maxFeePerBlobGas,omitempty"`
-	BlobVersionedHashes []string `json:"blobVersionedHashes,omitempty"`
-	Blobs               []string `json:"blobs,omitempty"`
+	MaxFeePerBlobGas    *big.Int      `json:"maxFeePerBlobGas,omitempty"`
+	BlobVersionedHashes []string      `json:"blobVersionedHashes,omitempty"`
+	Blobs               []string      `json:"blobs,omitempty"`
 	Sidecars            []BlobSidecar `json:"sidecars,omitempty"`
 
 	// EIP-7702 fields

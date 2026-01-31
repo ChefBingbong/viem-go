@@ -3,8 +3,9 @@ package abi_test
 import (
 	"math/big"
 
-	"github.com/ChefBingbong/viem-go/abi"
 	"github.com/ethereum/go-ethereum/common"
+
+	"github.com/ChefBingbong/viem-go/abi"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

@@ -9,7 +9,6 @@ import (
 // ByteConverter provides a fluent API for byte conversions.
 type ByteConverter struct {
 	data []byte
-	err  error
 }
 
 // FromBytes creates a new ByteConverter from a byte slice.

@@ -18,7 +18,7 @@ import (
 //		},
 //	})
 func SerializeAccessList(accessList AccessList) ([]any, error) {
-	if accessList == nil || len(accessList) == 0 {
+	if len(accessList) == 0 {
 		return []any{}, nil
 	}
 
@@ -53,7 +53,7 @@ func SerializeAccessList(accessList AccessList) ([]any, error) {
 
 // ParseAccessList parses an RLP-decoded access list.
 func ParseAccessList(data []any) (AccessList, error) {
-	if data == nil || len(data) == 0 {
+	if len(data) == 0 {
 		return nil, nil
 	}
 
