@@ -60,9 +60,28 @@ func mustRun(name string, args ...string) {
 	}
 }
 
+// installTools installs required Go tools if not present.
+func installTools() {
+	tools := []struct {
+		name string
+		pkg  string
+	}{
+		{"goimports", "golang.org/x/tools/cmd/goimports@latest"},
+		{"golangci-lint", "github.com/golangci/golangci-lint/cmd/golangci-lint@latest"},
+	}
+
+	for _, tool := range tools {
+		if _, err := exec.LookPath(tool.name); err != nil {
+			fmt.Printf("==> Installing %s...\n", tool.name)
+			mustRun("go", "install", tool.pkg)
+		}
+	}
+}
+
 // doLint runs the lint target from Makefile (which includes formatting).
 func doLint() {
 	fmt.Println("==> Running lint (includes gofmt and goimports)...")
+	installTools()
 	mustRun("make", "lint")
 	fmt.Println("==> Lint passed!")
 }
