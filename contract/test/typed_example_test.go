@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"math/big"
 
-	erc200 "github.com/ChefBingbong/viem-go/_typed/templates/erc200"
 	"github.com/ChefBingbong/viem-go/client"
 	"github.com/ChefBingbong/viem-go/contract"
+	erc200 "github.com/ChefBingbong/viem-go/contract/test/test_templates/erc200"
 	"github.com/ethereum/go-ethereum/common"
 
 	. "github.com/onsi/ginkgo"
