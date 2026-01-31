@@ -13,9 +13,7 @@ type (
 	Block             = types.Block
 
 	// Transaction types
-	CallRequest = types.CallRequest
 	Transaction = types.Transaction
-	FilterQuery = types.FilterQuery
 	AccessList  = types.AccessList
 	AccessTuple = types.AccessTuple
 

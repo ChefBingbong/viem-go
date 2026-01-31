@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
-	"encoding/json"
 	"sync"
 	"time"
 
@@ -148,6 +147,8 @@ func DefaultClientConfig() ClientConfig {
 }
 
 // BaseClient is the base JSON-RPC client that mirrors viem's createClient.
+// It only provides raw request capabilities - use PublicClient or WalletClient
+// for typed RPC method wrappers.
 type BaseClient struct {
 	// Account is the account of the client.
 	account Account
@@ -180,6 +181,8 @@ type BaseClient struct {
 }
 
 // CreateClient creates a new base client with the given configuration.
+// This is the low-level client factory - prefer CreatePublicClient or
+// CreateWalletClient for most use cases.
 func CreateClient(config ClientConfig) (*BaseClient, error) {
 	// Apply defaults
 	if config.Key == "" {
@@ -322,7 +325,9 @@ func (c *BaseClient) UID() string {
 	return c.uid
 }
 
-// Request sends a JSON-RPC request.
+// Request sends a raw JSON-RPC request.
+// This is the only RPC method on BaseClient - use PublicClient or WalletClient
+// for typed method wrappers.
 func (c *BaseClient) Request(ctx context.Context, method string, params ...any) (*transport.RPCResponse, error) {
 	req := transport.RPCRequest{
 		Method: method,
@@ -331,7 +336,7 @@ func (c *BaseClient) Request(ctx context.Context, method string, params ...any) 
 	return c.transport.Request(ctx, req)
 }
 
-// Close closes the client.
+// Close closes the client and its underlying transport.
 func (c *BaseClient) Close() error {
 	return c.transport.Close()
 }
@@ -387,257 +392,4 @@ func max(a, b int) int {
 		return a
 	}
 	return b
-}
-
-// ---- RPC Methods ----
-
-// GetBlockNumber returns the current block number.
-func (c *BaseClient) GetBlockNumber(ctx context.Context) (uint64, error) {
-	resp, err := c.Request(ctx, "eth_blockNumber")
-	if err != nil {
-		return 0, err
-	}
-
-	var hexNumber string
-	if err := json.Unmarshal(resp.Result, &hexNumber); err != nil {
-		return 0, err
-	}
-
-	return parseHexUint64(hexNumber)
-}
-
-// GetChainID returns the chain ID.
-func (c *BaseClient) GetChainID(ctx context.Context) (uint64, error) {
-	resp, err := c.Request(ctx, "eth_chainId")
-	if err != nil {
-		return 0, err
-	}
-
-	var hexChainID string
-	if err := json.Unmarshal(resp.Result, &hexChainID); err != nil {
-		return 0, err
-	}
-
-	return parseHexUint64(hexChainID)
-}
-
-// GetGasPrice returns the current gas price.
-func (c *BaseClient) GetGasPrice(ctx context.Context) (uint64, error) {
-	resp, err := c.Request(ctx, "eth_gasPrice")
-	if err != nil {
-		return 0, err
-	}
-
-	var hexGasPrice string
-	if err := json.Unmarshal(resp.Result, &hexGasPrice); err != nil {
-		return 0, err
-	}
-
-	return parseHexUint64(hexGasPrice)
-}
-
-// GetBalance returns the balance of an address.
-func (c *BaseClient) GetBalance(ctx context.Context, address common.Address, blockTag ...BlockTag) (json.RawMessage, error) {
-	tag := BlockTagLatest
-	if len(blockTag) > 0 {
-		tag = blockTag[0]
-	}
-	if c.experimentalBlockTag != "" && len(blockTag) == 0 {
-		tag = c.experimentalBlockTag
-	}
-
-	resp, err := c.Request(ctx, "eth_getBalance", address.Hex(), string(tag))
-	if err != nil {
-		return nil, err
-	}
-
-	return resp.Result, nil
-}
-
-// GetTransactionCount returns the nonce for an address.
-func (c *BaseClient) GetTransactionCount(ctx context.Context, address common.Address, blockTag ...BlockTag) (uint64, error) {
-	tag := BlockTagLatest
-	if len(blockTag) > 0 {
-		tag = blockTag[0]
-	}
-	if c.experimentalBlockTag != "" && len(blockTag) == 0 {
-		tag = c.experimentalBlockTag
-	}
-
-	resp, err := c.Request(ctx, "eth_getTransactionCount", address.Hex(), string(tag))
-	if err != nil {
-		return 0, err
-	}
-
-	var hexNonce string
-	if err := json.Unmarshal(resp.Result, &hexNonce); err != nil {
-		return 0, err
-	}
-
-	return parseHexUint64(hexNonce)
-}
-
-// GetCode returns the code at an address.
-func (c *BaseClient) GetCode(ctx context.Context, address common.Address, blockTag ...BlockTag) ([]byte, error) {
-	tag := BlockTagLatest
-	if len(blockTag) > 0 {
-		tag = blockTag[0]
-	}
-	if c.experimentalBlockTag != "" && len(blockTag) == 0 {
-		tag = c.experimentalBlockTag
-	}
-
-	resp, err := c.Request(ctx, "eth_getCode", address.Hex(), string(tag))
-	if err != nil {
-		return nil, err
-	}
-
-	var hexCode string
-	if err := json.Unmarshal(resp.Result, &hexCode); err != nil {
-		return nil, err
-	}
-
-	return parseHexBytes(hexCode)
-}
-
-// Call performs an eth_call.
-func (c *BaseClient) Call(ctx context.Context, callData map[string]any, blockTag ...BlockTag) ([]byte, error) {
-	tag := BlockTagLatest
-	if len(blockTag) > 0 {
-		tag = blockTag[0]
-	}
-	if c.experimentalBlockTag != "" && len(blockTag) == 0 {
-		tag = c.experimentalBlockTag
-	}
-
-	resp, err := c.Request(ctx, "eth_call", callData, string(tag))
-	if err != nil {
-		return nil, err
-	}
-
-	var hexResult string
-	if err := json.Unmarshal(resp.Result, &hexResult); err != nil {
-		return nil, err
-	}
-
-	return parseHexBytes(hexResult)
-}
-
-// EstimateGas estimates gas for a call.
-func (c *BaseClient) EstimateGas(ctx context.Context, callData map[string]any) (uint64, error) {
-	resp, err := c.Request(ctx, "eth_estimateGas", callData)
-	if err != nil {
-		return 0, err
-	}
-
-	var hexGas string
-	if err := json.Unmarshal(resp.Result, &hexGas); err != nil {
-		return 0, err
-	}
-
-	return parseHexUint64(hexGas)
-}
-
-// SendRawTransaction sends a signed raw transaction.
-func (c *BaseClient) SendRawTransaction(ctx context.Context, signedTx []byte) (common.Hash, error) {
-	hexTx := "0x" + hex.EncodeToString(signedTx)
-
-	resp, err := c.Request(ctx, "eth_sendRawTransaction", hexTx)
-	if err != nil {
-		return common.Hash{}, err
-	}
-
-	var hashHex string
-	if err := json.Unmarshal(resp.Result, &hashHex); err != nil {
-		return common.Hash{}, err
-	}
-
-	return common.HexToHash(hashHex), nil
-}
-
-// GetTransaction returns a transaction by hash.
-func (c *BaseClient) GetTransaction(ctx context.Context, hash common.Hash) (json.RawMessage, error) {
-	resp, err := c.Request(ctx, "eth_getTransactionByHash", hash.Hex())
-	if err != nil {
-		return nil, err
-	}
-
-	return resp.Result, nil
-}
-
-// GetTransactionReceipt returns a transaction receipt.
-func (c *BaseClient) GetTransactionReceipt(ctx context.Context, hash common.Hash) (json.RawMessage, error) {
-	resp, err := c.Request(ctx, "eth_getTransactionReceipt", hash.Hex())
-	if err != nil {
-		return nil, err
-	}
-
-	return resp.Result, nil
-}
-
-// GetBlock returns a block by number or tag.
-func (c *BaseClient) GetBlock(ctx context.Context, blockTag BlockTag, includeTransactions bool) (json.RawMessage, error) {
-	resp, err := c.Request(ctx, "eth_getBlockByNumber", string(blockTag), includeTransactions)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp.Result, nil
-}
-
-// GetBlockByHash returns a block by hash.
-func (c *BaseClient) GetBlockByHash(ctx context.Context, hash common.Hash, includeTransactions bool) (json.RawMessage, error) {
-	resp, err := c.Request(ctx, "eth_getBlockByHash", hash.Hex(), includeTransactions)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp.Result, nil
-}
-
-// GetLogs returns logs matching the filter.
-func (c *BaseClient) GetLogs(ctx context.Context, filter map[string]any) (json.RawMessage, error) {
-	resp, err := c.Request(ctx, "eth_getLogs", filter)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp.Result, nil
-}
-
-// ---- Helper functions ----
-
-// parseHexUint64 parses a hex string to uint64.
-func parseHexUint64(hexStr string) (uint64, error) {
-	if len(hexStr) >= 2 && hexStr[:2] == "0x" {
-		hexStr = hexStr[2:]
-	}
-	if hexStr == "" {
-		return 0, nil
-	}
-
-	var result uint64
-	for _, c := range hexStr {
-		result *= 16
-		switch {
-		case c >= '0' && c <= '9':
-			result += uint64(c - '0')
-		case c >= 'a' && c <= 'f':
-			result += uint64(c - 'a' + 10)
-		case c >= 'A' && c <= 'F':
-			result += uint64(c - 'A' + 10)
-		}
-	}
-	return result, nil
-}
-
-// parseHexBytes parses a hex string to bytes.
-func parseHexBytes(hexStr string) ([]byte, error) {
-	if len(hexStr) >= 2 && hexStr[:2] == "0x" {
-		hexStr = hexStr[2:]
-	}
-	if hexStr == "" {
-		return []byte{}, nil
-	}
-	return hex.DecodeString(hexStr)
 }
