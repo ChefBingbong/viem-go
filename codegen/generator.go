@@ -45,8 +45,8 @@ func (g *Generator) Generate() ([]byte, error) {
 	}
 
 	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, data); err != nil {
-		return nil, fmt.Errorf("failed to execute template: %w", err)
+	if execErr := tmpl.Execute(&buf, data); execErr != nil {
+		return nil, fmt.Errorf("failed to execute template: %w", execErr)
 	}
 
 	// Format the generated code
@@ -212,7 +212,7 @@ func solidityToGoType(solType string) string {
 			return "*big.Int"
 		}
 		sizeInt := 0
-		fmt.Sscanf(size, "%d", &sizeInt)
+		_, _ = fmt.Sscanf(size, "%d", &sizeInt)
 		if sizeInt <= 8 {
 			return "uint8"
 		} else if sizeInt <= 16 {
@@ -229,7 +229,7 @@ func solidityToGoType(solType string) string {
 			return "*big.Int"
 		}
 		sizeInt := 0
-		fmt.Sscanf(size, "%d", &sizeInt)
+		_, _ = fmt.Sscanf(size, "%d", &sizeInt)
 		if sizeInt <= 8 {
 			return "int8"
 		} else if sizeInt <= 16 {
@@ -258,10 +258,10 @@ func toExportedName(name string) string {
 	name = strings.ReplaceAll(name, "_", " ")
 	words := strings.Fields(name)
 	for i, word := range words {
-		words[i] = strings.Title(word)
+		words[i] = titleCase(word)
 	}
 	result := strings.Join(words, "")
-	
+
 	// Ensure first character is uppercase
 	runes := []rune(result)
 	if len(runes) > 0 {
@@ -331,4 +331,14 @@ func getTypedMethodDescriptor(fn FunctionData) string {
 		// For other types, use the generic form
 		return fmt.Sprintf("contract.ReadMethod[%s]", returnType)
 	}
+}
+
+// titleCase converts the first character of a string to uppercase.
+func titleCase(s string) string {
+	if s == "" {
+		return s
+	}
+	runes := []rune(s)
+	runes[0] = unicode.ToUpper(runes[0])
+	return string(runes)
 }

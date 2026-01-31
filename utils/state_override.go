@@ -33,12 +33,12 @@ type StateMapping struct {
 
 // AccountStateOverride represents state overrides for a single account.
 type AccountStateOverride struct {
-	Address   string          `json:"address"`             // Account address
-	Balance   *big.Int        `json:"balance,omitempty"`   // Override balance
-	Nonce     *uint64         `json:"nonce,omitempty"`     // Override nonce
-	Code      string          `json:"code,omitempty"`      // Override contract code
-	State     []StateMapping  `json:"state,omitempty"`     // Replace entire storage
-	StateDiff []StateMapping  `json:"stateDiff,omitempty"` // Modify specific storage slots
+	Address   string         `json:"address"`             // Account address
+	Balance   *big.Int       `json:"balance,omitempty"`   // Override balance
+	Nonce     *uint64        `json:"nonce,omitempty"`     // Override nonce
+	Code      string         `json:"code,omitempty"`      // Override contract code
+	State     []StateMapping `json:"state,omitempty"`     // Replace entire storage
+	StateDiff []StateMapping `json:"stateDiff,omitempty"` // Modify specific storage slots
 }
 
 // StateOverride is a list of account state overrides for RPC calls.

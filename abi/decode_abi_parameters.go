@@ -119,7 +119,7 @@ func normalizeIntegerValue(typ string, value any) any {
 		} else {
 			prefix = "int"
 		}
-		fmt.Sscanf(typ[len(prefix):], "%d", &size)
+		_, _ = fmt.Sscanf(typ[len(prefix):], "%d", &size)
 	}
 
 	// Get the value as *big.Int

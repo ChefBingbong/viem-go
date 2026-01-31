@@ -95,7 +95,7 @@ func decodeStandardError(data []byte) (*DecodedErrorResult, error) {
 
 	// Decode the string
 	reason, err := decodeRevertString(data[4:])
-	if err != nil {
+	if err != nil { //nolint:nilerr // Return partial result even if decode fails - this is intentional
 		return &DecodedErrorResult{
 			ErrorName: "Error",
 			Selector:  errorSelector,

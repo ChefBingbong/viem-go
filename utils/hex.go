@@ -11,7 +11,6 @@ import (
 // HexConverter provides a fluent API for hex conversions.
 type HexConverter struct {
 	data string
-	err  error
 }
 
 // FromHex creates a new HexConverter from a hex string.
@@ -99,7 +98,7 @@ func IsValidHex(s string) bool {
 		return false
 	}
 	for _, c := range strings.ToLower(s) {
-		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
+		if (c < '0' || c > '9') && (c < 'a' || c > 'f') {
 			return false
 		}
 	}

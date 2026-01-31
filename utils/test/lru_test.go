@@ -87,7 +87,7 @@ var _ = Describe("LruMap", func() {
 			// Add new item - should evict "b" now (oldest after "a" was accessed)
 			cache.Set("d", 4)
 
-			Expect(cache.Has("a")).To(BeTrue()) // "a" was refreshed
+			Expect(cache.Has("a")).To(BeTrue())  // "a" was refreshed
 			Expect(cache.Has("b")).To(BeFalse()) // "b" was evicted
 			Expect(cache.Has("c")).To(BeTrue())
 			Expect(cache.Has("d")).To(BeTrue())

@@ -1,8 +1,9 @@
 package contract_test
 
 import (
-	"github.com/ChefBingbong/viem-go/contract"
 	"github.com/ethereum/go-ethereum/common"
+
+	"github.com/ChefBingbong/viem-go/contract"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

@@ -5,7 +5,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// ParseErc6492Signature parses a hex-formatted ERC-6492 flavoured signature.
+// ParseErc6492Signature parses a hex-formatted ERC-6492 flavored signature.
 // If the signature is not in ERC-6492 format, then the underlying (original) signature is returned.
 //
 // Example:

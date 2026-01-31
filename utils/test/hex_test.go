@@ -3,9 +3,10 @@ package utils_test
 import (
 	"math/big"
 
-	"github.com/ChefBingbong/viem-go/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/ChefBingbong/viem-go/utils"
 )
 
 var _ = Describe("Hex Utils", func() {
@@ -26,7 +27,7 @@ var _ = Describe("Hex Utils", func() {
 				{"0xffff", 65535},
 				{"0xf4240", 1000000},
 				{"0x7fffffffffffffff", 9223372036854775807}, // max int64
-				{"ff", 255},                                 // without prefix
+				{"ff", 255}, // without prefix
 			}
 
 			for _, tc := range testCases {
@@ -120,7 +121,7 @@ var _ = Describe("Hex Utils", func() {
 				{"0x0", "0"},
 				{"0x1", "1"},
 				{"0xff", "255"},
-				{"0xde0b6b3a7640000", "1000000000000000000"},                                                           // 1 ETH in wei
+				{"0xde0b6b3a7640000", "1000000000000000000"}, // 1 ETH in wei
 				{"0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "115792089237316195423570985008687907853269984665640564039457584007913129639935"}, // max uint256
 			}
 

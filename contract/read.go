@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/ChefBingbong/viem-go/client"
 	"github.com/ethereum/go-ethereum/common"
+
+	"github.com/ChefBingbong/viem-go/client"
 )
 
 // ReadOptions contains options for read operations.
@@ -32,10 +33,8 @@ func (c *Contract) ReadWithOptions(ctx context.Context, opts ReadOptions, method
 	}
 
 	// Check if method is read-only (pure/view)
-	if !fn.IsReadOnly() {
-		// Allow calling non-view functions via eth_call for simulation
-		// but log a warning or return a specific error in strict mode
-	}
+	// Note: We allow calling non-view functions via eth_call for simulation
+	_ = fn.IsReadOnly() // Currently we don't enforce read-only, eth_call works for simulation
 
 	// Encode the call
 	calldata, err := c.abi.EncodeCall(method, args...)

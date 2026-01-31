@@ -119,7 +119,7 @@ func formatBlockTransactions(txs []any) []any {
 // mapToRpcTransaction converts a map to RpcTransaction.
 func mapToRpcTransaction(m map[string]any) RpcTransaction {
 	tx := RpcTransaction{}
-	
+
 	if v, ok := m["blockHash"].(string); ok {
 		tx.BlockHash = v
 	}
@@ -180,6 +180,6 @@ func mapToRpcTransaction(m map[string]any) RpcTransaction {
 	if v, ok := m["yParity"].(string); ok {
 		tx.YParity = v
 	}
-	
+
 	return tx
 }

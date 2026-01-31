@@ -208,7 +208,7 @@ func IsHex(s string) bool {
 		return true // "0x" is valid
 	}
 	for _, c := range strings.ToLower(s) {
-		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
+		if (c < '0' || c > '9') && (c < 'a' || c > 'f') {
 			return false
 		}
 	}

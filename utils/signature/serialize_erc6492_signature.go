@@ -15,7 +15,7 @@ type SerializeErc6492SignatureParams struct {
 	Signature string
 }
 
-// SerializeErc6492Signature serializes an ERC-6492 flavoured signature into hex format.
+// SerializeErc6492Signature serializes an ERC-6492 flavored signature into hex format.
 //
 // Example:
 //

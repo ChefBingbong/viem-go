@@ -5,9 +5,10 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/ChefBingbong/viem-go/client"
 	"github.com/ChefBingbong/viem-go/contract"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 // ContractABI is the ABI of the ERC20 contract.

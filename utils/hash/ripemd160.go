@@ -1,7 +1,7 @@
 package hash
 
 import (
-	"golang.org/x/crypto/ripemd160"
+	"golang.org/x/crypto/ripemd160" //nolint:staticcheck // RIPEMD-160 is required for Bitcoin address compatibility
 )
 
 // Ripemd160 computes the RIPEMD-160 hash of the input.

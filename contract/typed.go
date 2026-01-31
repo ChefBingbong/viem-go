@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/ChefBingbong/viem-go/client"
 	"github.com/ethereum/go-ethereum/common"
+
+	"github.com/ChefBingbong/viem-go/client"
 )
 
 // ReadMethod is a typed method descriptor for read-only contract calls.
