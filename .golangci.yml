@@ -17,14 +17,14 @@ linters:
     - unparam
     - bodyclose
     - nilerr
-    - exportloopref
 
 linters-settings:
   errcheck:
     check-type-assertions: true
     check-blank: false
   govet:
-    check-shadowing: false
+    enable:
+      - shadow
   gofmt:
     simplify: true
   goimports:
