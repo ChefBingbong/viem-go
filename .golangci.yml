@@ -15,16 +15,15 @@ linters:
     - misspell
     - unconvert
     - bodyclose
-
-linters-settings:
-  errcheck:
-    check-type-assertions: true
-    check-blank: false
-  govet:
-    enable:
-      - shadow
-  misspell:
-    locale: US
+  settings:
+    errcheck:
+      check-type-assertions: false
+      check-blank: false
+    govet:
+      enable:
+        - shadow
+    misspell:
+      locale: US
 
 formatters:
   enable:

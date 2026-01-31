@@ -313,7 +313,7 @@ func (c *Client) GetBlockByHash(ctx context.Context, hash common.Hash, fullTx bo
 }
 
 // WaitForTransaction waits for a transaction to be mined and returns the receipt.
-// It polls the node until the transaction is found or the context is cancelled.
+// It polls the node until the transaction is found or the context is canceled.
 func (c *Client) WaitForTransaction(ctx context.Context, hash common.Hash) (*Receipt, error) {
 	for {
 		receipt, err := c.GetTransactionReceipt(ctx, hash)

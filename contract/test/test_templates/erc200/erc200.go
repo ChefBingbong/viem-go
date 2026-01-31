@@ -2,6 +2,7 @@ package contract_test
 
 import (
 	"context"
+	"errors"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -293,6 +294,10 @@ func (c *Erc200) Decimals(ctx context.Context) (uint8, error) {
 	result, err := c.contract.Read(ctx, "decimals")
 	if err != nil {
 		return 0, err
+	}
+
+	if len(result) > 0 {
+		return 0, errors.New("Contract read returned no data")
 	}
 
 	return result[0].(uint8), nil

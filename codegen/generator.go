@@ -45,8 +45,8 @@ func (g *Generator) Generate() ([]byte, error) {
 	}
 
 	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, data); err != nil {
-		return nil, fmt.Errorf("failed to execute template: %w", err)
+	if execErr := tmpl.Execute(&buf, data); execErr != nil {
+		return nil, fmt.Errorf("failed to execute template: %w", execErr)
 	}
 
 	// Format the generated code

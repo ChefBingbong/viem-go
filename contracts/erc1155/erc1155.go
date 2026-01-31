@@ -73,7 +73,9 @@ func (e *ERC1155) BalanceOfBatch(ctx context.Context, accounts []common.Address,
 		if arr, ok := result[0].([]interface{}); ok {
 			balances = make([]*big.Int, len(arr))
 			for i, v := range arr {
-				balances[i] = v.(*big.Int)
+				if b, ok := v.(*big.Int); ok {
+					balances[i] = b
+				}
 			}
 		}
 	}
@@ -153,12 +155,18 @@ func (e *ERC1155) ParseTransferSingle(log client.Log) (*TransferSingleEvent, err
 		return nil, err
 	}
 
+	operator, _ := event["operator"].(common.Address)
+	from, _ := event["from"].(common.Address)
+	to, _ := event["to"].(common.Address)
+	id, _ := event["id"].(*big.Int)
+	value, _ := event["value"].(*big.Int)
+
 	return &TransferSingleEvent{
-		Operator: event["operator"].(common.Address),
-		From:     event["from"].(common.Address),
-		To:       event["to"].(common.Address),
-		Id:       event["id"].(*big.Int),
-		Value:    event["value"].(*big.Int),
+		Operator: operator,
+		From:     from,
+		To:       to,
+		Id:       id,
+		Value:    value,
 	}, nil
 }
 
