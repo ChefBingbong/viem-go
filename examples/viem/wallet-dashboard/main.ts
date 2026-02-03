@@ -10,11 +10,11 @@
  */
 
 import {
+  type Address,
   createPublicClient,
   formatEther,
   formatGwei,
   http,
-  type Address,
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, polygon } from 'viem/chains'
