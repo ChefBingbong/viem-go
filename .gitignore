@@ -1,2 +1,3 @@
 _typed/
 _contracts_typed/
+node_modules/*

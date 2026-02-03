@@ -1,0 +1,17 @@
+{
+  "name": "wallet-dashboard",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun run main.ts",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "viem": "^2.45.1"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5"
+  }
+}

@@ -82,13 +82,13 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        working-directory: examples
+        working-directory: examples/viem
         run: bun install
 
       - name: Type check
-        working-directory: examples
+        working-directory: examples/viem
         run: bun run check
 
       - name: Lint
-        working-directory: examples
+        working-directory: examples/viem
         run: bun run lint
