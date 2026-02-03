@@ -1,0 +1,8 @@
+{
+  "name": "viem-examples",
+  "private": true,
+  "workspaces": ["*"],
+  "scripts": {
+    "wallet-dashboard": "bun run --cwd wallet-dashboard start"
+  }
+}
