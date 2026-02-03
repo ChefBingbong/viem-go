@@ -2,13 +2,13 @@ name: Release
 
 on:
   push:
-    branches: [production]
+    branches: [master, main]
   pull_request:
     types: [closed]
-    branches: [master, main]
+    branches: [production]
 
 jobs:
-  # Update prerelease tag when pushing to production
+  # Update prerelease tag when pushing to master
   update-prerelease:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -58,13 +58,12 @@ jobs:
               throw error;
             }
 
-  # Publish prerelease as latest when PR from production is merged
+  # Publish prerelease as latest when PR from master is merged to production
   release:
-    # Only run on pull_request event when a PR from 'production' branch is merged
     if: |
       github.event_name == 'pull_request' &&
       github.event.pull_request.merged == true &&
-      github.event.pull_request.head.ref == 'production'
+      github.event.pull_request.head.ref == 'master'
     runs-on: ubuntu-latest
     permissions:
       contents: write
