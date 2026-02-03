@@ -1,8 +1,26 @@
 {
   "name": "viem-examples",
   "private": true,
-  "workspaces": ["*"],
+  "workspaces": [
+    "*"
+  ],
   "scripts": {
-    "wallet-dashboard": "bun run --cwd wallet-dashboard start"
-  }
+    "wallet-dashboard": "bun run --cwd wallet-dashboard start",
+    "check": "tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "format": "biome format . --write"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.13",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "viem": "^2.45.1"
+  },
+  "packageManager": "bun@1.2.0"
 }
