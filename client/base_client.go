@@ -25,21 +25,10 @@ const (
 	BlockTagFinalized = types.BlockTagFinalized
 )
 
-// MulticallBatchOptions contains options for multicall batching.
-type MulticallBatchOptions struct {
-	// BatchSize is the maximum size (in bytes) for each calldata chunk.
-	BatchSize int
-	// Deployless enables deployless multicall.
-	Deployless bool
-	// Wait is the maximum number of milliseconds to wait before sending a batch.
-	Wait time.Duration
-}
-
-// BatchOptions contains batch settings.
-type BatchOptions struct {
-	// Multicall enables eth_call multicall aggregation.
-	Multicall *MulticallBatchOptions
-}
+// Type aliases for convenience - actual types are in types package.
+type MulticallBatchOptions = types.MulticallBatchOptions
+type BatchOptions = types.BatchOptions
+type CCIPReadOptions = types.CCIPReadOptions
 
 // Account represents an account that can be used with the client.
 type Account interface {
@@ -73,6 +62,9 @@ type ClientConfig struct {
 	Batch *BatchOptions
 	// CacheTime is the time (in ms) that cached data will remain in memory.
 	CacheTime time.Duration
+	// CCIPRead contains CCIP-Read configuration.
+	// Set to nil to use defaults, set to empty struct to disable.
+	CCIPRead *CCIPReadOptions
 	// Chain is the chain configuration.
 	Chain *Chain
 	// DataSuffix is the data suffix to append to transaction data.
@@ -112,6 +104,8 @@ type BaseClient struct {
 	batch *BatchOptions
 	// CacheTime is the time (in ms) that cached data will remain in memory.
 	cacheTime time.Duration
+	// CCIPRead contains CCIP-Read configuration.
+	ccipRead *CCIPReadOptions
 	// Chain is the chain configuration.
 	chain *Chain
 	// DataSuffix is the data suffix to append to transaction data.
@@ -188,6 +182,7 @@ func CreateClient(config ClientConfig) (*BaseClient, error) {
 		account:              config.Account,
 		batch:                config.Batch,
 		cacheTime:            config.CacheTime,
+		ccipRead:             config.CCIPRead,
 		chain:                config.Chain,
 		dataSuffix:           config.DataSuffix,
 		experimentalBlockTag: experimentalBlockTag,
@@ -211,6 +206,11 @@ func (c *BaseClient) Account() Account {
 // Batch returns the batch options.
 func (c *BaseClient) Batch() *BatchOptions {
 	return c.batch
+}
+
+// CCIPRead returns the CCIP-Read configuration.
+func (c *BaseClient) CCIPRead() *CCIPReadOptions {
+	return c.ccipRead
 }
 
 // CacheTime returns the cache time.
