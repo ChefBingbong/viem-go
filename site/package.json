@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@astrojs/react": "^4.4.2",
-    "@astrojs/starlight": "^0.31.0",
+    "@astrojs/starlight": "^0.37.6",
     "@headlessui/react": "2.2.0",
     "@headlessui/tailwindcss": "0.2.1",
     "@heroicons/react": "2.2.0",
