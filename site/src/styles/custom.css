@@ -137,17 +137,27 @@ nav.sidebar,
 .hero-section::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: -3rem;
+  left: 45%;
+  transform: translateX(-50%);
+  width: 110vw !important;
   bottom: 0;
-  /* background-image: url(''); */
+  background-image: url('/svg/hero-bg.png');
   background-repeat: no-repeat;
-  background-position: right center;
-  background-size: contain;
-  opacity: 0.3;
+  background-position: center top;
+  background-size: cover;
+  opacity: 0.25;
   z-index: 0;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 50%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, black 50%, transparent 100%);
 }
+
+/* @media (max-width: 640px) {
+  .hero-section::before {
+    display: none;
+  }
+} */
 
 .hero-content {
   position: relative;
