@@ -10,6 +10,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
+	"github.com/ChefBingbong/viem-go/actions/public"
 	"github.com/ChefBingbong/viem-go/chain"
 	"github.com/ChefBingbong/viem-go/client/transport"
 	"github.com/ChefBingbong/viem-go/types"
@@ -133,20 +134,13 @@ func (c *PublicClient) GetGasPrice(ctx context.Context) (*big.Int, error) {
 }
 
 // GetBalance returns the balance of an address in wei.
+// This delegates to the standalone public.GetBalance action.
 func (c *PublicClient) GetBalance(ctx context.Context, address common.Address, blockTag ...BlockTag) (*big.Int, error) {
-	tag := c.resolveBlockTag(blockTag)
-
-	resp, err := c.Request(ctx, "eth_getBalance", address.Hex(), string(tag))
-	if err != nil {
-		return nil, err
+	params := public.GetBalanceParameters{Address: address}
+	if len(blockTag) > 0 {
+		params.BlockTag = blockTag[0]
 	}
-
-	var hexBalance string
-	if err := json.Unmarshal(resp.Result, &hexBalance); err != nil {
-		return nil, err
-	}
-
-	return parseHexBigInt(hexBalance)
+	return public.GetBalance(ctx, c, params)
 }
 
 // GetTransactionCount returns the nonce for an address.
@@ -204,20 +198,28 @@ func (c *PublicClient) GetStorageAt(ctx context.Context, address common.Address,
 type CallRequest = types.CallRequest
 
 // Call performs an eth_call.
+// This delegates to the standalone public.Call action.
 func (c *PublicClient) Call(ctx context.Context, call CallRequest, blockTag ...BlockTag) ([]byte, error) {
-	tag := c.resolveBlockTag(blockTag)
-
-	resp, err := c.Request(ctx, "eth_call", call, string(tag))
+	to := call.To // copy to get addressable value
+	params := public.CallParameters{
+		Account:  call.From,
+		To:       &to,
+		Data:     call.Data,
+		Value:    call.Value,
+		GasPrice: call.GasPrice,
+	}
+	if call.Gas > 0 {
+		gas := call.Gas
+		params.Gas = &gas
+	}
+	if len(blockTag) > 0 {
+		params.BlockTag = blockTag[0]
+	}
+	result, err := public.Call(ctx, c, params)
 	if err != nil {
 		return nil, err
 	}
-
-	var hexResult string
-	if err := json.Unmarshal(resp.Result, &hexResult); err != nil {
-		return nil, err
-	}
-
-	return parseHexBytes(hexResult)
+	return result.Data, nil
 }
 
 // EstimateGas estimates gas for a call.
@@ -235,72 +237,71 @@ func (c *PublicClient) EstimateGas(ctx context.Context, call CallRequest) (uint6
 	return parseHexUint64(hexGas)
 }
 
-// GetBlock returns a block by number or tag.
+// GetBlock returns a block by tag.
+// This delegates to the standalone public.GetBlock action.
 func (c *PublicClient) GetBlock(ctx context.Context, blockTag BlockTag, includeTransactions bool) (*types.Block, error) {
-	resp, err := c.Request(ctx, "eth_getBlockByNumber", string(blockTag), includeTransactions)
+	block, err := public.GetBlock(ctx, c, public.GetBlockParameters{
+		BlockTag:            blockTag,
+		IncludeTransactions: includeTransactions,
+	})
 	if err != nil {
+		// Convert BlockNotFoundError to nil for backward compatibility
+		if _, ok := err.(*public.BlockNotFoundError); ok {
+			return nil, nil
+		}
 		return nil, err
 	}
-
-	if resp.Result == nil || string(resp.Result) == "null" {
-		return nil, nil
-	}
-
-	var block types.Block
-	if err := json.Unmarshal(resp.Result, &block); err != nil {
-		return nil, err
-	}
-
-	return &block, nil
+	return block, nil
 }
 
 // GetBlockByNumber returns a block by number.
+// This delegates to the standalone public.GetBlock action.
 func (c *PublicClient) GetBlockByNumber(ctx context.Context, blockNumber uint64, includeTransactions bool) (*types.Block, error) {
-	hexBlockNumber := fmt.Sprintf("0x%x", blockNumber)
-	resp, err := c.Request(ctx, "eth_getBlockByNumber", hexBlockNumber, includeTransactions)
+	block, err := public.GetBlock(ctx, c, public.GetBlockParameters{
+		BlockNumber:         &blockNumber,
+		IncludeTransactions: includeTransactions,
+	})
 	if err != nil {
+		// Convert BlockNotFoundError to nil for backward compatibility
+		if _, ok := err.(*public.BlockNotFoundError); ok {
+			return nil, nil
+		}
 		return nil, err
 	}
-
-	if resp.Result == nil || string(resp.Result) == "null" {
-		return nil, nil
-	}
-
-	var block types.Block
-	if err := json.Unmarshal(resp.Result, &block); err != nil {
-		return nil, err
-	}
-
-	return &block, nil
+	return block, nil
 }
 
 // GetBlockByHash returns a block by hash.
+// This delegates to the standalone public.GetBlock action.
 func (c *PublicClient) GetBlockByHash(ctx context.Context, hash common.Hash, includeTransactions bool) (*types.Block, error) {
-	resp, err := c.Request(ctx, "eth_getBlockByHash", hash.Hex(), includeTransactions)
+	block, err := public.GetBlock(ctx, c, public.GetBlockParameters{
+		BlockHash:           &hash,
+		IncludeTransactions: includeTransactions,
+	})
 	if err != nil {
+		// Convert BlockNotFoundError to nil for backward compatibility
+		if _, ok := err.(*public.BlockNotFoundError); ok {
+			return nil, nil
+		}
 		return nil, err
 	}
-
-	if resp.Result == nil || string(resp.Result) == "null" {
-		return nil, nil
-	}
-
-	var block types.Block
-	if err := json.Unmarshal(resp.Result, &block); err != nil {
-		return nil, err
-	}
-
-	return &block, nil
+	return block, nil
 }
 
 // GetTransaction returns a transaction by hash.
-func (c *PublicClient) GetTransaction(ctx context.Context, hash common.Hash) (json.RawMessage, error) {
-	resp, err := c.Request(ctx, "eth_getTransactionByHash", hash.Hex())
+// This delegates to the standalone public.GetTransaction action.
+func (c *PublicClient) GetTransaction(ctx context.Context, hash common.Hash) (*public.TransactionResponse, error) {
+	tx, err := public.GetTransaction(ctx, c, public.GetTransactionParameters{
+		Hash: &hash,
+	})
 	if err != nil {
+		// Convert TransactionNotFoundError to nil for backward compatibility
+		if _, ok := err.(*public.TransactionNotFoundError); ok {
+			return nil, nil
+		}
 		return nil, err
 	}
-
-	return resp.Result, nil
+	return tx, nil
 }
 
 // GetTransactionReceipt returns a transaction receipt.
