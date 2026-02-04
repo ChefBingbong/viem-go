@@ -96,4 +96,3 @@ func GetBlock(ctx context.Context, client Client, params GetBlockParameters) (Ge
 
 	return &block, nil
 }
-

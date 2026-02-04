@@ -161,8 +161,8 @@ func CCIPRequest(ctx context.Context, params CCIPRequestParams) ([]byte, error) 
 
 		// Build URL
 		requestURL := url
-		requestURL = strings.Replace(requestURL, "{sender}", strings.ToLower(params.Sender.Hex()), -1)
-		requestURL = strings.Replace(requestURL, "{data}", hexutil.Encode(params.Data), -1)
+		requestURL = strings.ReplaceAll(requestURL, "{sender}", strings.ToLower(params.Sender.Hex()))
+		requestURL = strings.ReplaceAll(requestURL, "{data}", hexutil.Encode(params.Data))
 
 		// Make request
 		var req *http.Request
@@ -197,7 +197,7 @@ func CCIPRequest(ctx context.Context, params CCIPRequestParams) ([]byte, error) 
 
 		// Read response
 		respBody, err := io.ReadAll(resp.Body)
-		resp.Body.Close()
+		_ = resp.Body.Close()
 		if err != nil {
 			lastErr = err
 			continue

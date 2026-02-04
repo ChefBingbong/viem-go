@@ -426,7 +426,7 @@ func TestCall_WithEIP1559Fees(t *testing.T) {
 	ctx := context.Background()
 
 	to := common.HexToAddress("0x1234567890123456789012345678901234567890")
-	maxFeePerGas := big.NewInt(50000000000)     // 50 gwei
+	maxFeePerGas := big.NewInt(50000000000)        // 50 gwei
 	maxPriorityFeePerGas := big.NewInt(2000000000) // 2 gwei
 
 	_, err := public.Call(ctx, client, public.CallParameters{

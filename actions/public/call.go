@@ -105,16 +105,16 @@ type CallReturnType struct {
 
 // callRequest is the internal request format for eth_call.
 type callRequest struct {
-	From                 string          `json:"from,omitempty"`
-	To                   string          `json:"to,omitempty"`
-	Data                 string          `json:"data,omitempty"`
-	Value                string          `json:"value,omitempty"`
-	Gas                  string          `json:"gas,omitempty"`
-	GasPrice             string          `json:"gasPrice,omitempty"`
-	MaxFeePerGas         string          `json:"maxFeePerGas,omitempty"`
-	MaxPriorityFeePerGas string          `json:"maxPriorityFeePerGas,omitempty"`
-	MaxFeePerBlobGas     string          `json:"maxFeePerBlobGas,omitempty"`
-	Nonce                string          `json:"nonce,omitempty"`
+	From                 string           `json:"from,omitempty"`
+	To                   string           `json:"to,omitempty"`
+	Data                 string           `json:"data,omitempty"`
+	Value                string           `json:"value,omitempty"`
+	Gas                  string           `json:"gas,omitempty"`
+	GasPrice             string           `json:"gasPrice,omitempty"`
+	MaxFeePerGas         string           `json:"maxFeePerGas,omitempty"`
+	MaxPriorityFeePerGas string           `json:"maxPriorityFeePerGas,omitempty"`
+	MaxFeePerBlobGas     string           `json:"maxFeePerBlobGas,omitempty"`
+	Nonce                string           `json:"nonce,omitempty"`
 	AccessList           types.AccessList `json:"accessList,omitempty"`
 }
 
@@ -250,12 +250,12 @@ func Call(ctx context.Context, client Client, params CallParameters) (*CallRetur
 	}
 
 	if batch != nil && *batch && shouldPerformMulticall(req) && rpcStateOverride == nil && rpcBlockOverrides == nil {
-		result, err := scheduleMulticall(ctx, client, req, params.BlockNumber, params.BlockTag)
-		if err != nil {
+		result, multicallErr := scheduleMulticall(ctx, client, req, params.BlockNumber, params.BlockTag)
+		if multicallErr != nil {
 			// Fall through to regular call if multicall fails due to chain not supporting it
-			if _, ok := err.(*ChainNotConfiguredError); !ok {
-				if _, ok := err.(*ChainDoesNotSupportContractError); !ok {
-					return nil, err
+			if _, ok := multicallErr.(*ChainNotConfiguredError); !ok {
+				if _, ok := multicallErr.(*ChainDoesNotSupportContractError); !ok {
+					return nil, multicallErr
 				}
 			}
 		} else {
@@ -301,14 +301,14 @@ func Call(ctx context.Context, client Client, params CallParameters) (*CallRetur
 	}
 
 	var hexResult string
-	if err := json.Unmarshal(resp.Result, &hexResult); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal call result: %w", err)
+	if unmarshalErr := json.Unmarshal(resp.Result, &hexResult); unmarshalErr != nil {
+		return nil, fmt.Errorf("failed to unmarshal call result: %w", unmarshalErr)
 	}
 
 	// Parse the result
-	resultData, err := parseHexBytes(hexResult)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse call result: %w", err)
+	resultData, parseErr := parseHexBytes(hexResult)
+	if parseErr != nil {
+		return nil, fmt.Errorf("failed to parse call result: %w", parseErr)
 	}
 
 	// Return nil data if the result is empty (0x)
@@ -426,32 +426,32 @@ func scheduleMulticall(ctx context.Context, client Client, req callRequest, bloc
 		multicallReq.To = multicallAddress.Hex()
 	} else {
 		// Deployless multicall - wrap in deployless bytecode
-		deploylessData, err := deployless.ToDeploylessCallViaBytecodeData(
+		deploylessData, deploylessErr := deployless.ToDeploylessCallViaBytecodeData(
 			common.FromHex(constants.Multicall3Bytecode),
 			calldata,
 		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to encode deployless multicall: %w", err)
+		if deploylessErr != nil {
+			return nil, fmt.Errorf("failed to encode deployless multicall: %w", deploylessErr)
 		}
 		multicallReq.Data = hexutil.Encode(deploylessData)
 	}
 
 	// Execute multicall
 	block := resolveBlockTag(client, blockNumber, blockTag)
-	resp, err := client.Request(ctx, "eth_call", multicallReq, block)
-	if err != nil {
-		return nil, err
+	resp, requestErr := client.Request(ctx, "eth_call", multicallReq, block)
+	if requestErr != nil {
+		return nil, requestErr
 	}
 
 	var hexResult string
-	if err := json.Unmarshal(resp.Result, &hexResult); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal multicall result: %w", err)
+	if unmarshalErr := json.Unmarshal(resp.Result, &hexResult); unmarshalErr != nil {
+		return nil, fmt.Errorf("failed to unmarshal multicall result: %w", unmarshalErr)
 	}
 
 	// Decode multicall result
 	// aggregate3 returns: (bool success, bytes returnData)[]
 	resultData := common.FromHex(hexResult)
-	decoded, err := abi.DecodeAbiParameters(
+	decoded, decodeErr := abi.DecodeAbiParameters(
 		[]abi.AbiParam{
 			{
 				Type: "tuple[]",
@@ -463,8 +463,8 @@ func scheduleMulticall(ctx context.Context, client Client, req callRequest, bloc
 		},
 		resultData,
 	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode multicall result: %w", err)
+	if decodeErr != nil {
+		return nil, fmt.Errorf("failed to decode multicall result: %w", decodeErr)
 	}
 
 	// Extract result for our call (first one)
@@ -553,7 +553,8 @@ func getRevertErrorData(err error) []byte {
 		// Find end of hex string
 		end := len(hexStr)
 		for i, c := range hexStr[2:] {
-			if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) {
+			isHexDigit := (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')
+			if !isHexDigit {
 				end = i + 2
 				break
 			}

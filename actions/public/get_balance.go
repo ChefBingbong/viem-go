@@ -52,8 +52,8 @@ func GetBalance(ctx context.Context, client Client, params GetBalanceParameters)
 	}
 
 	var hexBalance string
-	if err := json.Unmarshal(resp.Result, &hexBalance); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal balance: %w", err)
+	if unmarshalErr := json.Unmarshal(resp.Result, &hexBalance); unmarshalErr != nil {
+		return nil, fmt.Errorf("failed to unmarshal balance: %w", unmarshalErr)
 	}
 
 	// Parse the balance
@@ -79,4 +79,3 @@ func parseHexBigInt(hexStr string) (*big.Int, error) {
 	}
 	return n, nil
 }
-

@@ -50,7 +50,7 @@ func (e *ErrInvalidAddress) Error() string {
 // SerializeStateMapping converts a StateMapping to the RPC format.
 // Each slot and value must be exactly 66 characters (including 0x prefix).
 func SerializeStateMapping(stateMapping types.StateMapping) (types.RpcStateMapping, error) {
-	if stateMapping == nil || len(stateMapping) == 0 {
+	if len(stateMapping) == 0 {
 		return nil, nil
 	}
 
