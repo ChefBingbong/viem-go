@@ -11,7 +11,6 @@ import (
 // It represents the tx count in wei.
 type GetBlobBaseFeeReturnType = *big.Int
 
-
 func GetBlobBaseFee(ctx context.Context, client Client) (GetBlobBaseFeeReturnType, error) {
 	// Execute the request
 	resp, err := client.Request(ctx, "eth_blobBaseFee")
