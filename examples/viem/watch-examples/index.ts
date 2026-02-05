@@ -14,11 +14,9 @@
 import {
   type Address,
   createPublicClient,
-  formatEther,
   formatUnits,
   http,
   parseAbiItem,
-  webSocket,
 } from 'viem'
 import { polygon } from 'viem/chains'
 
@@ -80,7 +78,9 @@ async function watchBlockNumberExample(signal: AbortSignal) {
 
   const client = createPublicClient({
     chain: polygon,
-    transport: http('https://rough-purple-market.matic.quiknode.pro/c1a568726a34041d3c5d58603f5981951e6a8503'),
+    transport: http(
+      'https://rough-purple-market.matic.quiknode.pro/c1a568726a34041d3c5d58603f5981951e6a8503',
+    ),
   })
 
   let count = 0
@@ -91,7 +91,8 @@ async function watchBlockNumberExample(signal: AbortSignal) {
     emitMissed: true,
     // pollingInterval: 2_000, // 2 seconds
     onBlockNumber: (blockNumber) => {
-      const prev = prevBlockNumber !== undefined ? prevBlockNumber.toString() : 'nil'
+      const prev =
+        prevBlockNumber !== undefined ? prevBlockNumber.toString() : 'nil'
       console.log(`Block: ${blockNumber} (prev: ${prev})`)
       prevBlockNumber = blockNumber
 
@@ -179,7 +180,9 @@ async function watchBlocksExample(signal: AbortSignal) {
 async function watchPendingTransactionsExample(signal: AbortSignal) {
   printSection('Watch Pending Transactions')
   console.log('Watching for pending transactions...')
-  console.log('Note: Some RPC providers do not support pending transaction filters')
+  console.log(
+    'Note: Some RPC providers do not support pending transaction filters',
+  )
   console.log('(Will stop after 20 transactions or error)')
 
   const client = createPublicClient({
@@ -203,7 +206,9 @@ async function watchPendingTransactionsExample(signal: AbortSignal) {
 
       totalTx += hashes.length
       if (totalTx >= 20) {
-        console.log(`Received ${totalTx} total pending transactions, stopping...`)
+        console.log(
+          `Received ${totalTx} total pending transactions, stopping...`,
+        )
         unwatch()
       }
     },
@@ -251,7 +256,10 @@ async function watchEventExample(signal: AbortSignal) {
       console.log(`Received ${logs.length} Transfer event(s):`)
       for (let i = 0; i < Math.min(3, logs.length); i++) {
         const log = logs[i]
-        console.log(`  Block ${log.blockNumber}, Tx: ${truncateHash(log.transactionHash ?? '')}`)
+        if (!log) continue
+        console.log(
+          `  Block ${log.blockNumber}, Tx: ${truncateHash(log.transactionHash ?? '')}`,
+        )
         if (log.args) {
           console.log(`    From: ${truncateAddress(log.args.from as string)}`)
           console.log(`    To:   ${truncateAddress(log.args.to as string)}`)
@@ -327,8 +335,8 @@ async function watchContractEventExample(signal: AbortSignal) {
         console.log(`  Block ${log.blockNumber}:`)
         console.log(`    Event: ${log.eventName}`)
         if (log.args) {
-          console.log(`    From:  ${(log.args.from)}`)
-          console.log(`    To:    ${(log.args.to)}`)
+          console.log(`    From:  ${log.args.from}`)
+          console.log(`    To:    ${log.args.to}`)
           // USDC has 6 decimals
           console.log(`    Value: ${formatUnits(log.args.value ?? 0n, 6)} USDC`)
         }
