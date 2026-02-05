@@ -1,0 +1,7 @@
+Benchmark client connected to: http://127.0.0.1:8545
+Current block number: 24392062
+goos: darwin
+goarch: arm64
+cpu: Apple M4 Pro
+BenchmarkMulticall_Basic-14                            	   10315	    245339 ns/op	   41049 B/op	     397 allocs/op
+BenchmarkMulticall_WithArgs-14                         	
