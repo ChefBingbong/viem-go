@@ -4,4 +4,18 @@ goos: darwin
 goarch: arm64
 cpu: Apple M4 Pro
 BenchmarkMulticall_Basic-14                            	   10315	    245339 ns/op	   41049 B/op	     397 allocs/op
-BenchmarkMulticall_WithArgs-14                         	
+BenchmarkMulticall_WithArgs-14                         	   10717	    228389 ns/op	   41749 B/op	     401 allocs/op
+BenchmarkMulticall_MultiContract-14                    	    2600	    836720 ns/op	   52251 B/op	     462 allocs/op
+BenchmarkMulticall_10Calls-14                          	    7362	    311950 ns/op	  105852 B/op	     800 allocs/op
+BenchmarkMulticall_30Calls-14                          	    3704	    583701 ns/op	  307551 B/op	    1913 allocs/op
+BenchmarkMulticall_Deployless-14                       	    5630	    392831 ns/op	  147177 B/op	     434 allocs/op
+BenchmarkMulticall_TokenMetadata-14                    	    7729	    266068 ns/op	   49801 B/op	     448 allocs/op
+BenchmarkMulticall_50Calls-14                          	    3109	    797226 ns/op	  503968 B/op	    3020 allocs/op
+BenchmarkMulticall_100Calls-14                         	    1446	   2267883 ns/op	 1079947 B/op	    6054 allocs/op
+BenchmarkMulticall_200Calls-14                         	     702	   3421246 ns/op	 2212184 B/op	   12099 allocs/op
+BenchmarkMulticall_500Calls-14                         	     286	  12091808 ns/op	 5468583 B/op	   29975 allocs/op
+BenchmarkMulticall_MixedContracts_100-14               	    1311	   1770695 ns/op	 1083172 B/op	    6055 allocs/op
+BenchmarkMulticall_1000Calls-14                        	     139	  17428512 ns/op	10849474 B/op	   59934 allocs/op
+BenchmarkMulticall_10000Calls_SingleRPC-14             	      14	 161951934 ns/op	104346312 B/op	  597863 allocs/op
+BenchmarkMulticall_10000Calls_Chunked-14               	      67	  34089674 ns/op	98664786 B/op	  563904 allocs/op
+BenchmarkMulticall_10000Calls_AggressiveChunking-14    	
