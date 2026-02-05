@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/ChefBingbong/viem-go/abi"
 	"github.com/ChefBingbong/viem-go/actions/public"
 	"github.com/ChefBingbong/viem-go/chain"
 	"github.com/ChefBingbong/viem-go/client/transport"
@@ -1809,4 +1810,523 @@ func TestGetTransaction_Count(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotNil(t, balance)
 	// assert.Equal(t, 2, balance)
+}
+
+// ============================================================================
+// CreateAccessList Tests
+// ============================================================================
+
+func TestCreateAccessList_Basic(t *testing.T) {
+	server := createTestServer(t, func(method string, params []any) any {
+		if method == "eth_createAccessList" {
+			return map[string]any{
+				"accessList": []map[string]any{
+					{
+						"address": "0x1234567890123456789012345678901234567890",
+						"storageKeys": []string{
+							"0x0000000000000000000000000000000000000000000000000000000000000001",
+							"0x0000000000000000000000000000000000000000000000000000000000000002",
+						},
+					},
+				},
+				"gasUsed": "0x5208",
+			}
+		}
+		return nil
+	})
+	defer server.Close()
+
+	client := createMockClient(t, server.URL)
+	ctx := context.Background()
+
+	to := common.HexToAddress("0x1234567890123456789012345678901234567890")
+	result, err := public.CreateAccessList(ctx, client, public.CreateAccessListParameters{
+		To:   &to,
+		Data: []byte{0x12, 0x34},
+	})
+
+	require.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Len(t, result.AccessList, 1)
+	assert.Equal(t, to, result.AccessList[0].Address)
+	assert.Len(t, result.AccessList[0].StorageKeys, 2)
+	assert.Equal(t, big.NewInt(21000), result.GasUsed)
+}
+
+func TestCreateAccessList_WithAccount(t *testing.T) {
+	var capturedParams []any
+	server := createTestServer(t, func(method string, params []any) any {
+		if method == "eth_createAccessList" {
+			capturedParams = params
+			return map[string]any{
+				"accessList": []map[string]any{},
+				"gasUsed":    "0x5208",
+			}
+		}
+		return nil
+	})
+	defer server.Close()
+
+	client := createMockClient(t, server.URL)
+	ctx := context.Background()
+
+	account := common.HexToAddress("0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+	to := common.HexToAddress("0x1234567890123456789012345678901234567890")
+
+	_, err := public.CreateAccessList(ctx, client, public.CreateAccessListParameters{
+		Account: &account,
+		To:      &to,
+		Data:    []byte{0x12, 0x34},
+	})
+
+	require.NoError(t, err)
+	require.NotEmpty(t, capturedParams)
+
+	// Verify the account was included in the request
+	if reqMap, ok := capturedParams[0].(map[string]any); ok {
+		assert.Equal(t, account.Hex(), reqMap["from"])
+	}
+}
+
+func TestCreateAccessList_EmptyAccessList(t *testing.T) {
+	server := createTestServer(t, func(method string, params []any) any {
+		if method == "eth_createAccessList" {
+			return map[string]any{
+				"accessList": []map[string]any{},
+				"gasUsed":    "0x5208",
+			}
+		}
+		return nil
+	})
+	defer server.Close()
+
+	client := createMockClient(t, server.URL)
+	ctx := context.Background()
+
+	to := common.HexToAddress("0x1234567890123456789012345678901234567890")
+	result, err := public.CreateAccessList(ctx, client, public.CreateAccessListParameters{
+		To: &to,
+	})
+
+	require.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Empty(t, result.AccessList)
+}
+
+// ============================================================================
+// SimulateBlocks Tests
+// ============================================================================
+
+func TestSimulateBlocks_Basic(t *testing.T) {
+	server := createTestServer(t, func(method string, params []any) any {
+		if method == "eth_simulateV1" {
+			return []map[string]any{
+				{
+					"number":    "0x1",
+					"hash":      "0x1234567890123456789012345678901234567890123456789012345678901234",
+					"timestamp": "0x5f5e100",
+					"gasUsed":   "0x5208",
+					"gasLimit":  "0x1c9c380",
+					"calls": []map[string]any{
+						{
+							"status":     "0x1",
+							"returnData": "0x000000000000000000000000000000000000000000000000000000000000002a",
+							"gasUsed":    "0x5208",
+							"logs":       []map[string]any{},
+						},
+					},
+				},
+			}
+		}
+		return nil
+	})
+	defer server.Close()
+
+	client := createMockClient(t, server.URL)
+	ctx := context.Background()
+
+	to := common.HexToAddress("0x1234567890123456789012345678901234567890")
+	results, err := public.SimulateBlocks(ctx, client, public.SimulateBlocksParameters{
+		Blocks: []public.SimulateBlock{
+			{
+				Calls: []public.SimulateBlockCall{
+					{
+						To:   &to,
+						Data: []byte{0x12, 0x34},
+					},
+				},
+			},
+		},
+	})
+
+	require.NoError(t, err)
+	assert.Len(t, results, 1)
+	assert.Len(t, results[0].Calls, 1)
+	assert.Equal(t, "success", results[0].Calls[0].Status)
+	assert.NotNil(t, results[0].Calls[0].Data)
+}
+
+func TestSimulateBlocks_MultipleBlocks(t *testing.T) {
+	server := createTestServer(t, func(method string, params []any) any {
+		if method == "eth_simulateV1" {
+			return []map[string]any{
+				{
+					"number":    "0x1",
+					"timestamp": "0x5f5e100",
+					"gasUsed":   "0x5208",
+					"calls": []map[string]any{
+						{"status": "0x1", "returnData": "0x01", "gasUsed": "0x5208"},
+					},
+				},
+				{
+					"number":    "0x2",
+					"timestamp": "0x5f5e101",
+					"gasUsed":   "0x5208",
+					"calls": []map[string]any{
+						{"status": "0x1", "returnData": "0x02", "gasUsed": "0x5208"},
+					},
+				},
+			}
+		}
+		return nil
+	})
+	defer server.Close()
+
+	client := createMockClient(t, server.URL)
+	ctx := context.Background()
+
+	to := common.HexToAddress("0x1234567890123456789012345678901234567890")
+	results, err := public.SimulateBlocks(ctx, client, public.SimulateBlocksParameters{
+		Blocks: []public.SimulateBlock{
+			{Calls: []public.SimulateBlockCall{{To: &to, Data: []byte{0x01}}}},
+			{Calls: []public.SimulateBlockCall{{To: &to, Data: []byte{0x02}}}},
+		},
+	})
+
+	require.NoError(t, err)
+	assert.Len(t, results, 2)
+}
+
+func TestSimulateBlocks_WithBlockOverrides(t *testing.T) {
+	var capturedParams []any
+	server := createTestServer(t, func(method string, params []any) any {
+		if method == "eth_simulateV1" {
+			capturedParams = params
+			return []map[string]any{
+				{
+					"number":  "0x10",
+					"calls":   []map[string]any{{"status": "0x1", "returnData": "0x", "gasUsed": "0x0"}},
+				},
+			}
+		}
+		return nil
+	})
+	defer server.Close()
+
+	client := createMockClient(t, server.URL)
+	ctx := context.Background()
+
+	blockNum := uint64(16)
+	to := common.HexToAddress("0x1234567890123456789012345678901234567890")
+
+	_, err := public.SimulateBlocks(ctx, client, public.SimulateBlocksParameters{
+		Blocks: []public.SimulateBlock{
+			{
+				BlockOverrides: &types.BlockOverrides{
+					Number: &blockNum,
+				},
+				Calls: []public.SimulateBlockCall{{To: &to}},
+			},
+		},
+	})
+
+	require.NoError(t, err)
+	require.NotEmpty(t, capturedParams)
+}
+
+func TestSimulateBlocks_FailedCall(t *testing.T) {
+	server := createTestServer(t, func(method string, params []any) any {
+		if method == "eth_simulateV1" {
+			return []map[string]any{
+				{
+					"number": "0x1",
+					"calls": []map[string]any{
+						{
+							"status":     "0x0",
+							"returnData": "0x08c379a0", // Error selector
+							"gasUsed":    "0x5208",
+							"error": map[string]any{
+								"code":    3,
+								"message": "execution reverted",
+							},
+						},
+					},
+				},
+			}
+		}
+		return nil
+	})
+	defer server.Close()
+
+	client := createMockClient(t, server.URL)
+	ctx := context.Background()
+
+	to := common.HexToAddress("0x1234567890123456789012345678901234567890")
+	results, err := public.SimulateBlocks(ctx, client, public.SimulateBlocksParameters{
+		Blocks: []public.SimulateBlock{
+			{Calls: []public.SimulateBlockCall{{To: &to}}},
+		},
+	})
+
+	require.NoError(t, err)
+	assert.Len(t, results, 1)
+	assert.Equal(t, "failure", results[0].Calls[0].Status)
+	assert.NotNil(t, results[0].Calls[0].Error)
+}
+
+// ============================================================================
+// SimulateCalls Tests
+// ============================================================================
+
+func TestSimulateCalls_Basic(t *testing.T) {
+	server := createTestServer(t, func(method string, params []any) any {
+		if method == "eth_simulateV1" {
+			return []map[string]any{
+				{
+					"number":    "0x1",
+					"timestamp": "0x5f5e100",
+					"calls": []map[string]any{
+						{"status": "0x1", "returnData": "0x0000000000000000000000000000000000000000000000000000000000000001", "gasUsed": "0x5208"},
+						{"status": "0x1", "returnData": "0x0000000000000000000000000000000000000000000000000000000000000002", "gasUsed": "0x5208"},
+						{"status": "0x1", "returnData": "0x", "gasUsed": "0x0"}, // Empty trailing call
+					},
+				},
+			}
+		}
+		return nil
+	})
+	defer server.Close()
+
+	client := createMockClient(t, server.URL)
+	ctx := context.Background()
+
+	to := common.HexToAddress("0x1234567890123456789012345678901234567890")
+	account := common.HexToAddress("0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+	result, err := public.SimulateCalls(ctx, client, public.SimulateCallsParameters{
+		Account: &account,
+		Calls: []public.SimulateCall{
+			{To: &to, Data: []byte{0x01}},
+			{To: &to, Data: []byte{0x02}},
+		},
+	})
+
+	require.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Len(t, result.Results, 2)
+	assert.Equal(t, "success", result.Results[0].Status)
+	assert.Equal(t, "success", result.Results[1].Status)
+}
+
+func TestSimulateCalls_WithValue(t *testing.T) {
+	server := createTestServer(t, func(method string, params []any) any {
+		if method == "eth_simulateV1" {
+			return []map[string]any{
+				{
+					"number": "0x1",
+					"calls": []map[string]any{
+						{"status": "0x1", "returnData": "0x", "gasUsed": "0x5208"},
+						{"status": "0x1", "returnData": "0x", "gasUsed": "0x0"},
+					},
+				},
+			}
+		}
+		return nil
+	})
+	defer server.Close()
+
+	client := createMockClient(t, server.URL)
+	ctx := context.Background()
+
+	to := common.HexToAddress("0x1234567890123456789012345678901234567890")
+	account := common.HexToAddress("0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+	result, err := public.SimulateCalls(ctx, client, public.SimulateCallsParameters{
+		Account: &account,
+		Calls: []public.SimulateCall{
+			{
+				To:    &to,
+				Value: big.NewInt(1000000000000000000), // 1 ETH
+			},
+		},
+	})
+
+	require.NoError(t, err)
+	assert.Len(t, result.Results, 1)
+}
+
+func TestSimulateCalls_RequiresAccountForAssetTracing(t *testing.T) {
+	client := &mockClient{}
+	ctx := context.Background()
+
+	to := common.HexToAddress("0x1234567890123456789012345678901234567890")
+
+	_, err := public.SimulateCalls(ctx, client, public.SimulateCallsParameters{
+		// No account specified
+		Calls: []public.SimulateCall{
+			{To: &to},
+		},
+		TraceAssetChanges: true,
+	})
+
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "account")
+}
+
+// ============================================================================
+// SimulateContract Tests
+// ============================================================================
+
+func TestSimulateContract_Basic(t *testing.T) {
+	server := createTestServer(t, func(method string, params []any) any {
+		if method == "eth_call" {
+			// Return true (bool) encoded
+			return "0x0000000000000000000000000000000000000000000000000000000000000001"
+		}
+		return nil
+	})
+	defer server.Close()
+
+	client := createMockClient(t, server.URL)
+	ctx := context.Background()
+
+	// Simple ABI with transfer function
+	contractABI, err := parseTestABI(`[{"inputs":[{"name":"to","type":"address"},{"name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"type":"bool"}],"stateMutability":"nonpayable","type":"function"}]`)
+	require.NoError(t, err)
+
+	contractAddr := common.HexToAddress("0x1234567890123456789012345678901234567890")
+	recipient := common.HexToAddress("0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+	result, err := public.SimulateContract(ctx, client, public.SimulateContractParameters{
+		Address:      contractAddr,
+		ABI:          contractABI,
+		FunctionName: "transfer",
+		Args:         []any{recipient, big.NewInt(1000)},
+	})
+
+	require.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.NotNil(t, result.Result)
+	// Result should be true (bool)
+	if b, ok := result.Result.(bool); ok {
+		assert.True(t, b)
+	}
+}
+
+func TestSimulateContract_WithAccount(t *testing.T) {
+	var capturedParams []any
+	server := createTestServer(t, func(method string, params []any) any {
+		if method == "eth_call" {
+			capturedParams = params
+			return "0x0000000000000000000000000000000000000000000000000000000000000001"
+		}
+		return nil
+	})
+	defer server.Close()
+
+	client := createMockClient(t, server.URL)
+	ctx := context.Background()
+
+	contractABI, _ := parseTestABI(`[{"inputs":[{"name":"to","type":"address"},{"name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"type":"bool"}],"stateMutability":"nonpayable","type":"function"}]`)
+
+	contractAddr := common.HexToAddress("0x1234567890123456789012345678901234567890")
+	account := common.HexToAddress("0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+	recipient := common.HexToAddress("0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+	_, err := public.SimulateContract(ctx, client, public.SimulateContractParameters{
+		Account:      &account,
+		Address:      contractAddr,
+		ABI:          contractABI,
+		FunctionName: "transfer",
+		Args:         []any{recipient, big.NewInt(1000)},
+	})
+
+	require.NoError(t, err)
+	require.NotEmpty(t, capturedParams)
+
+	// Verify account was included
+	if reqMap, ok := capturedParams[0].(map[string]any); ok {
+		assert.Equal(t, account.Hex(), reqMap["from"])
+	}
+}
+
+func TestSimulateContract_RequiresABI(t *testing.T) {
+	client := &mockClient{}
+	ctx := context.Background()
+
+	contractAddr := common.HexToAddress("0x1234567890123456789012345678901234567890")
+
+	_, err := public.SimulateContract(ctx, client, public.SimulateContractParameters{
+		Address:      contractAddr,
+		ABI:          nil, // No ABI
+		FunctionName: "transfer",
+	})
+
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "ABI")
+}
+
+func TestSimulateContract_RequiresFunctionName(t *testing.T) {
+	client := &mockClient{}
+	ctx := context.Background()
+
+	contractABI, _ := parseTestABI(`[{"inputs":[],"name":"test","outputs":[],"type":"function"}]`)
+	contractAddr := common.HexToAddress("0x1234567890123456789012345678901234567890")
+
+	_, err := public.SimulateContract(ctx, client, public.SimulateContractParameters{
+		Address:      contractAddr,
+		ABI:          contractABI,
+		FunctionName: "", // No function name
+	})
+
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "functionName")
+}
+
+func TestSimulateContract_ReturnsRequest(t *testing.T) {
+	server := createTestServer(t, func(method string, params []any) any {
+		if method == "eth_call" {
+			return "0x0000000000000000000000000000000000000000000000000000000000000001"
+		}
+		return nil
+	})
+	defer server.Close()
+
+	client := createMockClient(t, server.URL)
+	ctx := context.Background()
+
+	contractABI, _ := parseTestABI(`[{"inputs":[{"name":"to","type":"address"},{"name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"type":"bool"}],"stateMutability":"nonpayable","type":"function"}]`)
+
+	contractAddr := common.HexToAddress("0x1234567890123456789012345678901234567890")
+	account := common.HexToAddress("0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+	recipient := common.HexToAddress("0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+	result, err := public.SimulateContract(ctx, client, public.SimulateContractParameters{
+		Account:      &account,
+		Address:      contractAddr,
+		ABI:          contractABI,
+		FunctionName: "transfer",
+		Args:         []any{recipient, big.NewInt(1000)},
+	})
+
+	require.NoError(t, err)
+	assert.NotNil(t, result.Request)
+	assert.Equal(t, contractAddr, result.Request.Address)
+	assert.Equal(t, "transfer", result.Request.FunctionName)
+	assert.Equal(t, &account, result.Request.Account)
+}
+
+// Helper to parse ABI for tests
+func parseTestABI(jsonABI string) (*abi.ABI, error) {
+	return abi.ParseFromString(jsonABI)
 }

@@ -132,33 +132,39 @@ type BlockResult struct {
 // SimulateBlocksReturnType is the return type for the SimulateBlocks action.
 type SimulateBlocksReturnType = []BlockResult
 
+// simulateAccessListItem is the RPC format for an access list entry in simulation.
+type simulateAccessListItem struct {
+	Address     string   `json:"address"`
+	StorageKeys []string `json:"storageKeys"`
+}
+
 // rpcSimulateCall is the RPC format for a simulation call.
 type rpcSimulateCall struct {
-	From                 string           `json:"from,omitempty"`
-	To                   string           `json:"to,omitempty"`
-	Data                 string           `json:"data,omitempty"`
-	Value                string           `json:"value,omitempty"`
-	Gas                  string           `json:"gas,omitempty"`
-	GasPrice             string           `json:"gasPrice,omitempty"`
-	MaxFeePerGas         string           `json:"maxFeePerGas,omitempty"`
-	MaxPriorityFeePerGas string           `json:"maxPriorityFeePerGas,omitempty"`
-	Nonce                string           `json:"nonce,omitempty"`
-	AccessList           types.AccessList `json:"accessList,omitempty"`
+	From                 string                   `json:"from,omitempty"`
+	To                   string                   `json:"to,omitempty"`
+	Data                 string                   `json:"data,omitempty"`
+	Value                string                   `json:"value,omitempty"`
+	Gas                  string                   `json:"gas,omitempty"`
+	GasPrice             string                   `json:"gasPrice,omitempty"`
+	MaxFeePerGas         string                   `json:"maxFeePerGas,omitempty"`
+	MaxPriorityFeePerGas string                   `json:"maxPriorityFeePerGas,omitempty"`
+	Nonce                string                   `json:"nonce,omitempty"`
+	AccessList           []simulateAccessListItem `json:"accessList,omitempty"`
 }
 
 // rpcBlockStateCall is the RPC format for a block state call.
 type rpcBlockStateCall struct {
 	BlockOverrides *types.RpcBlockOverrides `json:"blockOverrides,omitempty"`
-	Calls          []rpcSimulateCall        `json:"calls,omitempty"`
+	Calls          []rpcSimulateCall        `json:"calls"`
 	StateOverrides types.RpcStateOverride   `json:"stateOverrides,omitempty"`
 }
 
 // rpcSimulateParams is the RPC format for eth_simulateV1 params.
 type rpcSimulateParams struct {
 	BlockStateCalls        []rpcBlockStateCall `json:"blockStateCalls"`
-	ReturnFullTransactions bool                `json:"returnFullTransactions,omitempty"`
-	TraceTransfers         bool                `json:"traceTransfers,omitempty"`
-	Validation             bool                `json:"validation,omitempty"`
+	ReturnFullTransactions *bool               `json:"returnFullTransactions,omitempty"`
+	TraceTransfers         *bool               `json:"traceTransfers,omitempty"`
+	Validation             *bool               `json:"validation,omitempty"`
 }
 
 // rpcSimulateCallResult is the RPC response format for a call result.
@@ -259,7 +265,18 @@ func SimulateBlocks(ctx context.Context, client Client, params SimulateBlocksPar
 				rpcCall.Nonce = hexutil.EncodeUint64(*call.Nonce)
 			}
 			if len(call.AccessList) > 0 {
-				rpcCall.AccessList = call.AccessList
+				rpcAccessList := make([]simulateAccessListItem, len(call.AccessList))
+				for i, item := range call.AccessList {
+					storageKeys := make([]string, len(item.StorageKeys))
+					for j, key := range item.StorageKeys {
+						storageKeys[j] = key.Hex()
+					}
+					rpcAccessList[i] = simulateAccessListItem{
+						Address:     item.Address.Hex(),
+						StorageKeys: storageKeys,
+					}
+				}
+				rpcCall.AccessList = rpcAccessList
 			}
 
 			calls = append(calls, rpcCall)
@@ -278,12 +295,18 @@ func SimulateBlocks(ctx context.Context, client Client, params SimulateBlocksPar
 		})
 	}
 
-	// Build params
+	// Build params - only include optional booleans when true
 	rpcParams := rpcSimulateParams{
-		BlockStateCalls:        blockStateCalls,
-		ReturnFullTransactions: params.ReturnFullTransactions,
-		TraceTransfers:         params.TraceTransfers,
-		Validation:             params.Validation,
+		BlockStateCalls: blockStateCalls,
+	}
+	if params.ReturnFullTransactions {
+		rpcParams.ReturnFullTransactions = &params.ReturnFullTransactions
+	}
+	if params.TraceTransfers {
+		rpcParams.TraceTransfers = &params.TraceTransfers
+	}
+	if params.Validation {
+		rpcParams.Validation = &params.Validation
 	}
 
 	// Determine block tag
