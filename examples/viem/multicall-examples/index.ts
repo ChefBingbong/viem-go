@@ -164,7 +164,7 @@ async function main() {
       if (result.status === 'success') {
         const balance = result.result as bigint
         console.log(
-          `  ${tokens[i]?.name}: ${formatUnits(balance, tokens[i]?.decimals!)}`,
+          `  ${tokens[i]?.name}: ${formatUnits(balance, tokens[i]?.decimals ?? 18)}`,
         )
       } else {
         console.log(`  ${tokens[i]?.name}: failed - ${result.error}`)
