@@ -373,7 +373,7 @@ func BenchmarkMulticall_10000Calls_Chunked(b *testing.B) {
 	params := public.MulticallParameters{
 		Contracts:           contracts,
 		BatchSize:           8192, // Large batches
-		MaxConcurrentChunks: 10,   // Parallel RPC calls
+		MaxConcurrentChunks: 20,   // Parallel RPC calls
 	}
 
 	b.ResetTimer()

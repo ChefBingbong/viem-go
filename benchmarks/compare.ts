@@ -234,6 +234,14 @@ function buildBenchmarkMapping(goResults: GoBenchmark[], tsResults: TSBenchmark[
     BenchmarkMulticall_ChunkedParallel: 'viem-ts: multicall (chunked parallel)',
     BenchmarkMulticall_Deployless: 'viem-ts: multicall (deployless)',
     BenchmarkMulticall_TokenMetadata: 'viem-ts: multicall (token metadata)',
+    // Stress test benchmarks
+    BenchmarkMulticall_100Calls: 'viem-ts: multicall (100 calls)',
+    BenchmarkMulticall_500Calls: 'viem-ts: multicall (500 calls)',
+    BenchmarkMulticall_MixedContracts_100: 'viem-ts: multicall (100 mixed contracts)',
+    BenchmarkMulticall_1000Calls: 'viem-ts: multicall (1000 calls)',
+    BenchmarkMulticall_10000Calls_SingleRPC: 'viem-ts: multicall (10000 calls single RPC)',
+    BenchmarkMulticall_10000Calls_Chunked: 'viem-ts: multicall (10000 calls chunked)',
+    BenchmarkMulticall_10000Calls_AggressiveChunking: 'viem-ts: multicall (10000 calls aggressive)',
   }
   
   // Apply static mappings
@@ -280,7 +288,11 @@ function categorizeBenchmark(name: string): string {
   if (lower.includes('basic')) return 'Basic Operations'
   if (lower.includes('data') || lower.includes('witharg')) return 'With Parameters'
   if (lower.includes('account')) return 'With Account'
-  if (lower.includes('multiple') || lower.includes('10call') || lower.includes('30call')) return 'Batch Operations'
+  // Stress tests (10000, 1000, 500, 100 calls)
+  if (lower.includes('10000') || lower.includes('1000call') || lower.includes('500call')) return 'Extreme Stress Tests'
+  if (lower.includes('aggressive') || lower.includes('singlerpc')) return 'Extreme Stress Tests'
+  if (lower.includes('multiple') || lower.includes('10call') || lower.includes('30call') || lower.includes('100call')) return 'Batch Operations'
+  if (lower.includes('mixedcontract') || lower.includes('mixed')) return 'Multi-Contract'
   if (lower.includes('multicontract') || lower.includes('multi-contract')) return 'Multi-Contract'
   if (lower.includes('chunk') || lower.includes('parallel')) return 'Parallel Execution'
   if (lower.includes('deployless')) return 'Deployless'

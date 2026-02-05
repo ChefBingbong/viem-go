@@ -1,37 +1,41 @@
 # Benchmark Comparison: viem-go vs viem TypeScript
 
-Generated: 2026-02-05T17:16:32.678Z
+Generated: 2026-02-05T17:26:39.109Z
 
 ## Overall Summary
 
-**🏆 Go is 1.52x faster overall**
+**🏆 Go is 3.25x faster overall**
 
 | Metric | Go | TypeScript |
 |--------|----|-----------|
-| Avg ns/op | 2,772,653 | 4,216,390 |
-| Avg ops/s | 361 | 237 |
-| Wins | 12/12 | 0/12 |
+| Avg ns/op | 17,874,996 | 58,180,284 |
+| Avg ops/s | 56 | 17 |
+| Wins | 16/16 | 0/16 |
 
 ## Detailed Results
 
 | Benchmark | Go (ns/op) | TS (ns/op) | Go (ops/s) | TS (ops/s) | Result |
 |-----------|------------|------------|------------|------------|--------|
-| Multicall_Basic | 221,674 | 438,153 | 4,511 | 2,282 | 🟢 Go 1.98x faster |
-| Multicall_WithArgs | 231,625 | 1,018,569 | 4,317 | 982 | 🟢 Go 4.40x faster |
-| Multicall_MultiContract | 260,821 | 598,914 | 3,834 | 1,670 | 🟢 Go 2.30x faster |
-| Multicall_10Calls | 283,913 | 545,664 | 3,522 | 1,833 | 🟢 Go 1.92x faster |
-| Multicall_30Calls | 541,499 | 1,087,441 | 1,847 | 920 | 🟢 Go 2.01x faster |
-| Multicall_Deployless | 393,360 | 594,817 | 2,542 | 1,681 | 🟢 Go 1.51x faster |
-| Multicall_TokenMetadata | 248,060 | 426,652 | 4,031 | 2,344 | 🟢 Go 1.72x faster |
-| Multicall_50Calls | 796,671 | 1,475,536 | 1,255 | 678 | 🟢 Go 1.85x faster |
-| Multicall_100Calls | 1,693,048 | 2,581,445 | 591 | 387 | 🟢 Go 1.52x faster |
-| Multicall_200Calls | 3,351,026 | 4,961,794 | 298 | 202 | 🟢 Go 1.48x faster |
-| Multicall_500Calls | 8,326,050 | 12,061,431 | 120 | 83 | 🟢 Go 1.45x faster |
-| Multicall_1000Calls | 16,924,090 | 24,806,263 | 59 | 40 | 🟢 Go 1.47x faster |
+| Multicall_Basic | 241,418 | 455,660 | 4,142 | 2,195 | 🟢 Go 1.89x faster |
+| Multicall_WithArgs | 221,758 | 387,133 | 4,509 | 2,583 | 🟢 Go 1.75x faster |
+| Multicall_MultiContract | 253,772 | 462,263 | 3,941 | 2,163 | 🟢 Go 1.82x faster |
+| Multicall_10Calls | 284,814 | 555,713 | 3,511 | 1,799 | 🟢 Go 1.95x faster |
+| Multicall_30Calls | 547,743 | 1,012,361 | 1,826 | 988 | 🟢 Go 1.85x faster |
+| Multicall_Deployless | 394,342 | 640,623 | 2,536 | 1,561 | 🟢 Go 1.62x faster |
+| Multicall_TokenMetadata | 249,351 | 429,251 | 4,010 | 2,330 | 🟢 Go 1.72x faster |
+| Multicall_50Calls | 823,730 | 1,448,478 | 1,214 | 690 | 🟢 Go 1.76x faster |
+| Multicall_100Calls | 1,708,452 | 2,693,966 | 585 | 371 | 🟢 Go 1.58x faster |
+| Multicall_200Calls | 3,403,431 | 4,908,216 | 294 | 204 | 🟢 Go 1.44x faster |
+| Multicall_500Calls | 8,354,617 | 12,045,682 | 120 | 83 | 🟢 Go 1.44x faster |
+| Multicall_MixedContracts_100 | 1,732,611 | 2,568,779 | 577 | 389 | 🟢 Go 1.48x faster |
+| Multicall_1000Calls | 16,887,841 | 24,288,646 | 59 | 41 | 🟢 Go 1.44x faster |
+| Multicall_10000Calls_SingleRPC | 165,489,012 | 322,997,416 | 6 | 3 | 🟢 Go 1.95x faster |
+| Multicall_10000Calls_Chunked | 36,930,845 | 214,518,620 | 27 | 5 | 🟢 Go 5.81x faster |
+| Multicall_10000Calls_AggressiveChunking | 48,476,204 | 341,471,743 | 21 | 3 | 🟢 Go 7.04x faster |
 
 ## Win Summary
 
-- 🟢 Go wins: 12 (100%)
+- 🟢 Go wins: 16 (100%)
 - 🔵 TS wins: 0 (0%)
 - ⚪ Ties: 0 (0%)
 

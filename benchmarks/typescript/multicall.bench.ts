@@ -50,8 +50,8 @@ console.log(`\n[viem-ts] Multicall RPC URL: ${rpcUrl}`)
 // Benchmark options - align with Go benchmark settings
 const benchOptions = {
   time: 2000,          // Run for 2 seconds
-  warmupTime: 1000,    // 1s warmup
-  warmupIterations: 1, // At least 1 warmup iteration
+  warmupTime: 0,    // 1s warmup
+  warmupIterations: 0, // At least 1 warmup iteration
 }
 
 // Multicall config - disable chunking for fair comparison (single RPC call)

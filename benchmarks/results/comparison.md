@@ -1,6 +1,6 @@
 # Benchmark Comparison: viem-go vs viem TypeScript
 
-Generated: 2026-02-05T14:43:18.571Z
+Generated: 2026-02-05T17:27:24.998Z
 
 ## Overall Summary
 
