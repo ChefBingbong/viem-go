@@ -2014,8 +2014,8 @@ func TestSimulateBlocks_WithBlockOverrides(t *testing.T) {
 			capturedParams = params
 			return []map[string]any{
 				{
-					"number":  "0x10",
-					"calls":   []map[string]any{{"status": "0x1", "returnData": "0x", "gasUsed": "0x0"}},
+					"number": "0x10",
+					"calls":  []map[string]any{{"status": "0x1", "returnData": "0x", "gasUsed": "0x0"}},
 				},
 			}
 		}
