@@ -46,6 +46,12 @@ type Client interface {
 	// UID returns the unique identifier for this client instance.
 	UID() string
 
+	// DataSuffix returns the data suffix to append to transaction data.
+	DataSuffix() []byte
+
+	// PollingInterval returns the polling interval for the client.
+	PollingInterval() time.Duration
+
 	// Account returns the account associated with this client, if any.
 	// Returns nil if no account is set.
 	Account() Account
