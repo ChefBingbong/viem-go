@@ -28,7 +28,6 @@ export async function run() {
     const call = calls[i]
     if (!call) continue
 
-
     const { to, value } = call
     console.log(
       `Simulating call ${i + 1}: ${account.address} -> ${to} (${formatEther(value)} POL)`,
