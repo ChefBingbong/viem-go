@@ -38,19 +38,20 @@ func readUint256AsInt(buf []byte, off int) int {
 //
 // ABI layout for tuple(address target, bool allowFailure, bytes callData)[]:
 //
-//   [offset to array = 32]                          (32 bytes)
-//   [array length = N]                              (32 bytes)
-//   [offset to tuple[0], tuple[1], ... tuple[N-1]]  (N * 32 bytes)
-//   [tuple[0] data]                                 (variable)
-//   [tuple[1] data]                                 (variable)
-//   ...
+//	[offset to array = 32]                          (32 bytes)
+//	[array length = N]                              (32 bytes)
+//	[offset to tuple[0], tuple[1], ... tuple[N-1]]  (N * 32 bytes)
+//	[tuple[0] data]                                 (variable)
+//	[tuple[1] data]                                 (variable)
+//	...
 //
 // Each tuple (address, bool, bytes):
-//   [address left-padded to 32]   (32 bytes)
-//   [allowFailure as uint256]     (32 bytes)
-//   [offset to bytes = 96]        (32 bytes)  -- always 3*32, points past head
-//   [callData length]             (32 bytes)
-//   [callData right-padded to 32] (ceil32 bytes)
+//
+//	[address left-padded to 32]   (32 bytes)
+//	[allowFailure as uint256]     (32 bytes)
+//	[offset to bytes = 96]        (32 bytes)  -- always 3*32, points past head
+//	[callData length]             (32 bytes)
+//	[callData right-padded to 32] (ceil32 bytes)
 func encodeAggregate3Fast(calls []Call3) []byte {
 	n := len(calls)
 	if n == 0 {
@@ -121,17 +122,18 @@ func encodeAggregate3Fast(calls []Call3) []byte {
 //
 // ABI layout for tuple(bool success, bytes returnData)[]:
 //
-//   [offset to array = 32]                          (32 bytes)
-//   [array length = N]                              (32 bytes)
-//   [offset to tuple[0], tuple[1], ... tuple[N-1]]  (N * 32 bytes)
-//   [tuple[0] data]                                 (variable)
-//   ...
+//	[offset to array = 32]                          (32 bytes)
+//	[array length = N]                              (32 bytes)
+//	[offset to tuple[0], tuple[1], ... tuple[N-1]]  (N * 32 bytes)
+//	[tuple[0] data]                                 (variable)
+//	...
 //
 // Each result tuple (bool, bytes):
-//   [success as uint256]            (32 bytes)
-//   [offset to bytes = 64]          (32 bytes)  -- always 2*32
-//   [returnData length]             (32 bytes)
-//   [returnData right-padded to 32] (ceil32 bytes)
+//
+//	[success as uint256]            (32 bytes)
+//	[offset to bytes = 64]          (32 bytes)  -- always 2*32
+//	[returnData length]             (32 bytes)
+//	[returnData right-padded to 32] (ceil32 bytes)
 func decodeAggregate3Fast(data []byte) ([]aggregate3Result, error) {
 	if len(data) < 64 {
 		return nil, fmt.Errorf("aggregate3 result too short: %d bytes", len(data))
