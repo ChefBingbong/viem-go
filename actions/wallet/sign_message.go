@@ -2,7 +2,7 @@ package wallet
 
 import (
 	"context"
-	"encoding/json"
+	json "github.com/goccy/go-json"
 	"fmt"
 
 	"github.com/ChefBingbong/viem-go/utils/encoding"

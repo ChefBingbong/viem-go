@@ -4,7 +4,7 @@ package ccip
 import (
 	"bytes"
 	"context"
-	"encoding/json"
+	json "github.com/goccy/go-json"
 	"fmt"
 	"io"
 	"net/http"

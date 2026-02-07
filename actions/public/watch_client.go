@@ -1,7 +1,7 @@
 package public
 
 import (
-	"encoding/json"
+	json "github.com/goccy/go-json"
 	"time"
 
 	"github.com/ChefBingbong/viem-go/client/transport"

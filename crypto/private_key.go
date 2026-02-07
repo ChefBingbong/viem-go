@@ -3,7 +3,7 @@ package crypto
 import (
 	"crypto/ecdsa"
 	"encoding/base64"
-	"encoding/json"
+	json "github.com/goccy/go-json"
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/crypto"

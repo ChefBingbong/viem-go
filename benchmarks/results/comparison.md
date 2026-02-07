@@ -1,94 +1,94 @@
 # Benchmark Comparison: viem-go vs viem TypeScript
 
-Generated: 2026-02-07T04:58:28.510Z
+Generated: 2026-02-07T05:46:12.170Z
 
 ## Overall Summary
 
-**🏆 Go is 4.41x faster overall**
+**🏆 Go is 4.53x faster overall**
 
 | Metric | Go | TypeScript |
 |--------|----|-----------|
-| Avg ns/op | 3,492,003 | 15,401,105 |
-| Avg ops/s | 286 | 65 |
+| Avg ns/op | 3,062,791 | 13,861,286 |
+| Avg ops/s | 326 | 72 |
 | Wins | 55/59 | 3/59 |
 
 ## By Suite
 
 | Suite | Benchmarks | Go Wins | TS Wins | Ties | Winner |
 |-------|------------|---------|---------|------|--------|
-| abi | 6 | 6 | 0 | 0 | 🟢 Go 16.22x faster |
-| address | 5 | 2 | 2 | 1 | 🟢 Go 3.96x faster |
-| call | 6 | 6 | 0 | 0 | 🟢 Go 73.82x faster |
-| ens | 5 | 5 | 0 | 0 | 🟢 Go 14.79x faster |
-| event | 3 | 3 | 0 | 0 | 🟢 Go 30.85x faster |
-| hash | 7 | 7 | 0 | 0 | 🟢 Go 11.41x faster |
-| multicall | 16 | 16 | 0 | 0 | 🟢 Go 3.97x faster |
-| signature | 5 | 5 | 0 | 0 | 🟢 Go 59.87x faster |
-| unit | 6 | 5 | 1 | 0 | 🟢 Go 1.47x faster |
+| abi | 6 | 6 | 0 | 0 | 🟢 Go 17.34x faster |
+| address | 5 | 2 | 2 | 1 | 🟢 Go 4.09x faster |
+| call | 6 | 6 | 0 | 0 | 🟢 Go 87.21x faster |
+| ens | 5 | 5 | 0 | 0 | 🟢 Go 14.77x faster |
+| event | 3 | 3 | 0 | 0 | 🟢 Go 28.31x faster |
+| hash | 7 | 7 | 0 | 0 | 🟢 Go 12.18x faster |
+| multicall | 16 | 16 | 0 | 0 | 🟢 Go 4.01x faster |
+| signature | 5 | 5 | 0 | 0 | 🟢 Go 59.31x faster |
+| unit | 6 | 5 | 1 | 0 | 🟢 Go 1.37x faster |
 
 ## Detailed Results
 
 | Benchmark | Go (ns/op) | TS (ns/op) | Go (ops/s) | TS (ops/s) | Result |
 |-----------|------------|------------|------------|------------|--------|
-| Abi_EncodeSimple | 249 | 8,899 | 4,022,526 | 112,370 | 🟢 Go 35.80x faster |
-| Abi_EncodeComplex | 341 | 9,211 | 2,935,995 | 108,571 | 🟢 Go 27.04x faster |
-| Abi_EncodeMultiArg | 457 | 9,890 | 2,188,184 | 101,108 | 🟢 Go 21.64x faster |
-| Abi_DecodeResult | 99 | 1,061 | 10,108,157 | 942,525 | 🟢 Go 10.72x faster |
-| Abi_EncodePacked | 329 | 697 | 3,044,140 | 1,434,746 | 🟢 Go 2.12x faster |
-| Abi_EncodePackedMulti | 442 | 1,316 | 2,263,468 | 759,683 | 🟢 Go 2.98x faster |
-| Address_IsAddress | 928 | 298 | 1,078,167 | 3,351,033 | 🔵 TS 3.11x faster |
-| Address_IsAddressLower | 320 | 302 | 3,128,911 | 3,311,220 | 🔵 TS 1.06x faster |
-| Address_Checksum | 840 | 818 | 1,190,476 | 1,223,024 | ⚪ Similar |
-| Address_Create | 2,431 | 9,671 | 411,353 | 103,398 | 🟢 Go 3.98x faster |
-| Address_Create2 | 2,694 | 17,498 | 371,195 | 57,151 | 🟢 Go 6.50x faster |
-| Call_Basic | 196,682 | 18,719,581 | 5,084 | 53 | 🟢 Go 95.18x faster |
-| Call_WithData | 193,787 | 18,549,434 | 5,160 | 54 | 🟢 Go 95.72x faster |
-| Call_WithAccount | 204,228 | 324,588 | 4,896 | 3,081 | 🟢 Go 1.59x faster |
-| Call_Decimals | 201,236 | 17,731,534 | 4,969 | 56 | 🟢 Go 88.11x faster |
-| Call_Symbol | 238,621 | 17,735,182 | 4,191 | 56 | 🟢 Go 74.32x faster |
-| Call_BalanceOfMultiple | 192,364 | 17,511,172 | 5,198 | 57 | 🟢 Go 91.03x faster |
-| Ens_Namehash | 1,603 | 28,984 | 623,830 | 34,502 | 🟢 Go 18.08x faster |
-| Ens_NamehashDeep | 3,182 | 55,769 | 314,268 | 17,931 | 🟢 Go 17.53x faster |
-| Ens_Labelhash | 442 | 7,205 | 2,263,980 | 138,799 | 🟢 Go 16.31x faster |
-| Ens_Normalize | 365 | 979 | 2,740,477 | 1,021,913 | 🟢 Go 2.68x faster |
-| Ens_NormalizeLong | 870 | 2,620 | 1,148,897 | 381,724 | 🟢 Go 3.01x faster |
-| Event_DecodeTransfer | 389 | 12,163 | 2,572,016 | 82,216 | 🟢 Go 31.28x faster |
-| Event_DecodeBatch10 | 3,811 | 117,472 | 262,398 | 8,513 | 🟢 Go 30.82x faster |
-| Event_DecodeBatch100 | 38,016 | 1,172,649 | 26,305 | 853 | 🟢 Go 30.85x faster |
-| Hash_Keccak256Short | 436 | 7,135 | 2,295,157 | 140,161 | 🟢 Go 16.38x faster |
-| Hash_Keccak256Long | 2,718 | 60,568 | 367,918 | 16,510 | 🟢 Go 22.28x faster |
-| Hash_Keccak256Hex | 453 | 7,106 | 2,205,558 | 140,718 | 🟢 Go 15.67x faster |
-| Hash_Sha256Short | 164 | 1,458 | 6,108,735 | 686,004 | 🟢 Go 8.90x faster |
-| Hash_Sha256Long | 639 | 13,967 | 1,564,456 | 71,595 | 🟢 Go 21.85x faster |
-| Hash_FunctionSelector | 2,100 | 8,298 | 476,190 | 120,511 | 🟢 Go 3.95x faster |
-| Hash_EventSelector | 2,883 | 8,636 | 346,861 | 115,800 | 🟢 Go 3.00x faster |
-| Multicall_Basic | 225,243 | 458,142 | 4,440 | 2,183 | 🟢 Go 2.03x faster |
-| Multicall_WithArgs | 231,361 | 427,771 | 4,322 | 2,338 | 🟢 Go 1.85x faster |
-| Multicall_MultiContract | 283,634 | 466,242 | 3,526 | 2,145 | 🟢 Go 1.64x faster |
-| Multicall_10Calls | 303,542 | 542,085 | 3,294 | 1,845 | 🟢 Go 1.79x faster |
-| Multicall_30Calls | 576,186 | 1,033,934 | 1,736 | 967 | 🟢 Go 1.79x faster |
-| Multicall_Deployless | 392,787 | 624,715 | 2,546 | 1,601 | 🟢 Go 1.59x faster |
-| Multicall_TokenMetadata | 274,697 | 433,706 | 3,640 | 2,306 | 🟢 Go 1.58x faster |
-| Multicall_50Calls | 888,228 | 1,467,244 | 1,126 | 682 | 🟢 Go 1.65x faster |
-| Multicall_100Calls | 1,393,872 | 2,633,866 | 717 | 380 | 🟢 Go 1.89x faster |
-| Multicall_200Calls | 2,532,627 | 5,338,743 | 395 | 187 | 🟢 Go 2.11x faster |
-| Multicall_500Calls | 3,915,287 | 11,255,849 | 255 | 89 | 🟢 Go 2.87x faster |
-| Multicall_MixedContracts_100 | 1,387,717 | 2,613,969 | 721 | 383 | 🟢 Go 1.88x faster |
-| Multicall_1000Calls | 6,328,351 | 21,352,328 | 158 | 47 | 🟢 Go 3.37x faster |
-| Multicall_10000Calls_SingleRPC | 123,074,232 | 324,348,870 | 8 | 3 | 🟢 Go 2.64x faster |
-| Multicall_10000Calls_Chunked | 30,255,180 | 217,004,470 | 33 | 5 | 🟢 Go 7.17x faster |
-| Multicall_10000Calls_AggressiveChunking | 32,615,701 | 223,259,137 | 31 | 4 | 🟢 Go 6.85x faster |
-| Signature_HashMessage | 752 | 8,456 | 1,330,318 | 118,254 | 🟢 Go 11.25x faster |
-| Signature_HashMessageLong | 1,713 | 18,255 | 583,771 | 54,778 | 🟢 Go 10.66x faster |
-| Signature_RecoverAddress | 25,976 | 1,594,261 | 38,497 | 627 | 🟢 Go 61.37x faster |
-| Signature_VerifyMessage | 25,936 | 1,643,899 | 38,556 | 608 | 🟢 Go 63.38x faster |
-| Signature_ParseSignature | 186 | 1,906 | 5,387,931 | 524,661 | 🟢 Go 10.27x faster |
-| Unit_ParseEther | 112 | 241 | 8,952,551 | 4,148,035 | 🟢 Go 2.16x faster |
-| Unit_ParseEtherLarge | 308 | 247 | 3,246,753 | 4,055,152 | 🔵 TS 1.25x faster |
-| Unit_FormatEther | 115 | 153 | 8,665,511 | 6,523,001 | 🟢 Go 1.33x faster |
-| Unit_ParseUnits6 | 98 | 212 | 10,249,052 | 4,706,299 | 🟢 Go 2.18x faster |
-| Unit_ParseGwei | 100 | 217 | 10,008,006 | 4,598,678 | 🟢 Go 2.18x faster |
-| Unit_FormatUnits | 96 | 144 | 10,415,582 | 6,961,428 | 🟢 Go 1.50x faster |
+| Abi_EncodeSimple | 215 | 8,644 | 4,649,000 | 115,685 | 🟢 Go 40.19x faster |
+| Abi_EncodeComplex | 325 | 9,533 | 3,079,766 | 104,895 | 🟢 Go 29.36x faster |
+| Abi_EncodeMultiArg | 455 | 10,030 | 2,199,252 | 99,700 | 🟢 Go 22.06x faster |
+| Abi_DecodeResult | 93 | 1,073 | 10,697,475 | 931,629 | 🟢 Go 11.48x faster |
+| Abi_EncodePacked | 334 | 703 | 2,994,012 | 1,422,858 | 🟢 Go 2.10x faster |
+| Abi_EncodePackedMulti | 382 | 1,281 | 2,621,232 | 780,533 | 🟢 Go 3.36x faster |
+| Address_IsAddress | 910 | 293 | 1,099,143 | 3,418,491 | 🔵 TS 3.11x faster |
+| Address_IsAddressLower | 304 | 295 | 3,286,231 | 3,395,274 | ⚪ Similar |
+| Address_Checksum | 812 | 722 | 1,231,527 | 1,384,784 | 🔵 TS 1.12x faster |
+| Address_Create | 2,346 | 9,761 | 426,257 | 102,451 | 🟢 Go 4.16x faster |
+| Address_Create2 | 2,591 | 17,410 | 385,951 | 57,437 | 🟢 Go 6.72x faster |
+| Call_Basic | 176,772 | 19,322,365 | 5,657 | 52 | 🟢 Go 109.31x faster |
+| Call_WithData | 171,302 | 18,632,279 | 5,838 | 54 | 🟢 Go 108.77x faster |
+| Call_WithAccount | 175,134 | 289,804 | 5,710 | 3,451 | 🟢 Go 1.65x faster |
+| Call_Decimals | 184,363 | 17,701,183 | 5,424 | 56 | 🟢 Go 96.01x faster |
+| Call_Symbol | 180,229 | 17,923,138 | 5,548 | 56 | 🟢 Go 99.45x faster |
+| Call_BalanceOfMultiple | 169,866 | 18,375,462 | 5,887 | 54 | 🟢 Go 108.18x faster |
+| Ens_Namehash | 1,600 | 28,027 | 625,000 | 35,680 | 🟢 Go 17.52x faster |
+| Ens_NamehashDeep | 3,067 | 55,594 | 326,052 | 17,987 | 🟢 Go 18.13x faster |
+| Ens_Labelhash | 446 | 7,205 | 2,243,662 | 138,784 | 🟢 Go 16.17x faster |
+| Ens_Normalize | 354 | 1,000 | 2,823,264 | 1,000,321 | 🟢 Go 2.82x faster |
+| Ens_NormalizeLong | 930 | 2,663 | 1,075,731 | 375,460 | 🟢 Go 2.87x faster |
+| Event_DecodeTransfer | 417 | 11,837 | 2,398,657 | 84,484 | 🟢 Go 28.39x faster |
+| Event_DecodeBatch10 | 4,101 | 123,131 | 243,843 | 8,121 | 🟢 Go 30.02x faster |
+| Event_DecodeBatch100 | 42,196 | 1,187,409 | 23,699 | 842 | 🟢 Go 28.14x faster |
+| Hash_Keccak256Short | 435 | 7,543 | 2,300,966 | 132,569 | 🟢 Go 17.36x faster |
+| Hash_Keccak256Long | 2,688 | 60,971 | 372,024 | 16,401 | 🟢 Go 22.68x faster |
+| Hash_Keccak256Hex | 460 | 7,119 | 2,173,913 | 140,464 | 🟢 Go 15.48x faster |
+| Hash_Sha256Short | 160 | 1,487 | 6,242,197 | 672,569 | 🟢 Go 9.28x faster |
+| Hash_Sha256Long | 663 | 14,108 | 1,507,841 | 70,882 | 🟢 Go 21.27x faster |
+| Hash_FunctionSelector | 2,063 | 8,651 | 484,731 | 115,598 | 🟢 Go 4.19x faster |
+| Hash_EventSelector | 2,421 | 8,365 | 413,052 | 119,545 | 🟢 Go 3.46x faster |
+| Multicall_Basic | 201,757 | 469,942 | 4,956 | 2,128 | 🟢 Go 2.33x faster |
+| Multicall_WithArgs | 238,069 | 394,218 | 4,200 | 2,537 | 🟢 Go 1.66x faster |
+| Multicall_MultiContract | 229,500 | 466,651 | 4,357 | 2,143 | 🟢 Go 2.03x faster |
+| Multicall_10Calls | 237,288 | 522,065 | 4,214 | 1,915 | 🟢 Go 2.20x faster |
+| Multicall_30Calls | 482,191 | 1,020,637 | 2,074 | 980 | 🟢 Go 2.12x faster |
+| Multicall_Deployless | 354,896 | 687,205 | 2,818 | 1,455 | 🟢 Go 1.94x faster |
+| Multicall_TokenMetadata | 210,526 | 430,263 | 4,750 | 2,324 | 🟢 Go 2.04x faster |
+| Multicall_50Calls | 628,617 | 1,499,093 | 1,591 | 667 | 🟢 Go 2.38x faster |
+| Multicall_100Calls | 1,081,524 | 2,662,194 | 925 | 376 | 🟢 Go 2.46x faster |
+| Multicall_200Calls | 1,893,893 | 5,728,689 | 528 | 175 | 🟢 Go 3.02x faster |
+| Multicall_500Calls | 3,049,869 | 10,795,604 | 328 | 93 | 🟢 Go 3.54x faster |
+| Multicall_MixedContracts_100 | 1,887,659 | 2,553,952 | 530 | 392 | 🟢 Go 1.35x faster |
+| Multicall_1000Calls | 6,557,866 | 20,927,595 | 152 | 48 | 🟢 Go 3.19x faster |
+| Multicall_10000Calls_SingleRPC | 100,524,853 | 209,200,644 | 10 | 5 | 🟢 Go 2.08x faster |
+| Multicall_10000Calls_Chunked | 31,845,494 | 218,966,914 | 31 | 5 | 🟢 Go 6.88x faster |
+| Multicall_10000Calls_AggressiveChunking | 30,096,187 | 244,385,249 | 33 | 4 | 🟢 Go 8.12x faster |
+| Signature_HashMessage | 805 | 8,647 | 1,241,773 | 115,648 | 🟢 Go 10.74x faster |
+| Signature_HashMessageLong | 1,846 | 18,234 | 541,712 | 54,843 | 🟢 Go 9.88x faster |
+| Signature_RecoverAddress | 26,312 | 1,673,780 | 38,005 | 597 | 🟢 Go 63.61x faster |
+| Signature_VerifyMessage | 26,069 | 1,572,154 | 38,360 | 636 | 🟢 Go 60.31x faster |
+| Signature_ParseSignature | 184 | 1,908 | 5,434,783 | 524,037 | 🟢 Go 10.37x faster |
+| Unit_ParseEther | 118 | 246 | 8,481,764 | 4,068,068 | 🟢 Go 2.08x faster |
+| Unit_ParseEtherLarge | 319 | 233 | 3,136,763 | 4,293,864 | 🔵 TS 1.37x faster |
+| Unit_FormatEther | 118 | 143 | 8,453,085 | 6,975,713 | 🟢 Go 1.21x faster |
+| Unit_ParseUnits6 | 102 | 218 | 9,832,842 | 4,586,885 | 🟢 Go 2.14x faster |
+| Unit_ParseGwei | 107 | 203 | 9,363,296 | 4,927,703 | 🟢 Go 1.90x faster |
+| Unit_FormatUnits | 97 | 133 | 10,340,192 | 7,507,014 | 🟢 Go 1.38x faster |
 
 ## Win Summary
 

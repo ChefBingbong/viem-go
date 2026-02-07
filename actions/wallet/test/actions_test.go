@@ -2,7 +2,7 @@ package wallet_test
 
 import (
 	"context"
-	"encoding/json"
+	json "github.com/goccy/go-json"
 	"math/big"
 	"net/http"
 	"net/http/httptest"

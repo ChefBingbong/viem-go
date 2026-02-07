@@ -1,7 +1,7 @@
 package rpc
 
 import (
-	"encoding/json"
+	json "github.com/goccy/go-json"
 	"errors"
 	"fmt"
 	"sync/atomic"

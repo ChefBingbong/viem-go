@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"crypto/sha256"
-	"encoding/json"
+	json "github.com/goccy/go-json"
 	"testing"
 	"testing/quick"
 

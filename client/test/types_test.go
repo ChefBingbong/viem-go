@@ -1,7 +1,7 @@
 package client_test
 
 import (
-	"encoding/json"
+	json "github.com/goccy/go-json"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"

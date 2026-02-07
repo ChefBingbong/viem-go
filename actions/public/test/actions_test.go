@@ -3,7 +3,7 @@ package public_test
 import (
 	"bytes"
 	"context"
-	"encoding/json"
+	json "github.com/goccy/go-json"
 	"math/big"
 	"net/http"
 	"net/http/httptest"

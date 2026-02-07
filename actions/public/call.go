@@ -3,7 +3,7 @@ package public
 import (
 	"context"
 	"encoding/hex"
-	"encoding/json"
+	json "github.com/goccy/go-json"
 	"fmt"
 	"math/big"
 	"strings"
