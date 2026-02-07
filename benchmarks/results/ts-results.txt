@@ -11,156 +11,156 @@ stdout | multicall.bench.ts:49:9
 
 [viem-ts] Multicall RPC URL: http://127.0.0.1:8545
 
- ✓ multicall.bench.ts > Multicall 32448ms
+ ✓ multicall.bench.ts > Multicall 33706ms
      name                                               hz      min      max     mean      p75      p99     p995     p999      rme  samples
-   · viem-ts: multicall (basic)                   2,124.25   0.3002  17.9303   0.4708   0.4829   1.4545   2.2745   4.7810   ±2.57%     4249
-   · viem-ts: multicall (with args)               2,370.75   0.2855  10.1458   0.4218   0.4045   2.0639   2.7072   4.7333   ±2.38%     4742
-   · viem-ts: multicall (multi-contract)          2,548.06   0.3074   3.3108   0.3925   0.3989   0.7645   1.3510   2.2829   ±1.01%     5097
-   · viem-ts: multicall (10 calls)                1,952.63   0.4041   2.8155   0.5121   0.5225   0.9885   1.5339   2.1890   ±0.78%     3906
-   · viem-ts: multicall (30 calls)                1,135.82   0.7807   4.8240   0.8804   0.8886   1.3595   1.3901   1.8695   ±0.58%     2272
-   · viem-ts: multicall (deployless)              1,781.32   0.4183   152.42   0.5614   0.5271   0.8179   1.6770   2.0690  ±14.90%     3563
-   · viem-ts: multicall (token metadata)          2,744.78   0.2951   2.5145   0.3643   0.3735   0.5320   1.2883   2.0174   ±0.87%     5490   fastest
-   · viem-ts: multicall (50 calls)                  785.63   1.1220   4.9277   1.2729   1.2794   1.8544   2.7657   4.6388   ±0.81%     1572
-   · viem-ts: multicall (100 calls)                 450.83   2.0673   7.1246   2.2181   2.2460   2.4942   2.6207   7.1246   ±0.61%      902
-   · viem-ts: multicall (200 calls)                 239.99   3.9050   6.2855   4.1668   4.2203   4.8962   5.6475   6.2855   ±0.46%      480
-   · viem-ts: multicall (500 calls)                 110.89   8.5920  12.7173   9.0183   9.0748  11.9739  12.4896  12.7173   ±0.69%      222
-   · viem-ts: multicall (100 mixed contracts)       420.89   2.0640  19.0014   2.3759   2.3784   4.4254   9.9611  19.0014   ±2.66%      842
-   · viem-ts: multicall (1000 calls)               57.8013  16.2526  26.2872  17.3006  17.2614  24.0054  26.2872  26.2872   ±1.62%      116
-   · viem-ts: multicall (10000 calls single RPC)    5.9904   162.52   172.95   166.93   167.57   172.95   172.95   172.95   ±1.10%       13
-   · viem-ts: multicall (10000 calls chunked)       5.8185   162.87   197.03   171.86   177.39   197.03   197.03   197.03   ±3.87%       12   slowest
-   · viem-ts: multicall (10000 calls aggressive)    6.0223   161.55   174.51   166.05   167.15   174.51   174.51   174.51   ±1.29%       13
+   · viem-ts: multicall (basic)                   2,182.73   0.3432  29.1125   0.4581   0.4579   1.0184   1.2130   3.0130   ±3.00%     4366
+   · viem-ts: multicall (with args)               2,337.70   0.2942  18.3906   0.4278   0.4196   1.0430   1.4329   5.4565   ±2.98%     4676   fastest
+   · viem-ts: multicall (multi-contract)          2,144.81   0.3565   5.9270   0.4662   0.4767   0.9510   1.0058   1.3384   ±0.81%     4290
+   · viem-ts: multicall (10 calls)                1,844.73   0.4636   5.9212   0.5421   0.5418   0.8734   0.9142   1.6585   ±0.85%     3690
+   · viem-ts: multicall (30 calls)                  967.18   0.9123  15.6930   1.0339   1.0170   2.1111   2.4221   4.9288   ±1.69%     1935
+   · viem-ts: multicall (deployless)              1,600.73   0.4988   149.95   0.6247   0.5817   0.9115   1.0052   1.4445  ±14.65%     3202
+   · viem-ts: multicall (token metadata)          2,305.71   0.3565   4.6576   0.4337   0.4348   0.8314   0.9025   1.3981   ±0.82%     4612
+   · viem-ts: multicall (50 calls)                  681.55   1.3687   5.7508   1.4672   1.4868   1.7202   1.9640   3.0750   ±0.52%     1364
+   · viem-ts: multicall (100 calls)                 379.67   2.4803   6.0253   2.6339   2.6644   2.8514   2.9224   6.0253   ±0.40%      760
+   · viem-ts: multicall (200 calls)                 187.31   4.7835  16.6927   5.3388   5.4857   8.4748  10.0877  16.6927   ±1.54%      375
+   · viem-ts: multicall (500 calls)                88.8427  10.6036  16.4692  11.2558  11.2412  15.4955  16.4692  16.4692   ±0.98%      178
+   · viem-ts: multicall (100 mixed contracts)       382.56   2.4651   4.9443   2.6140   2.6429   2.9079   3.4613   4.9443   ±0.39%      766
+   · viem-ts: multicall (1000 calls)               46.8333  20.3580  36.9548  21.3523  21.0998  36.9548  36.9548  36.9548   ±2.09%       94
+   · viem-ts: multicall (10000 calls single RPC)    3.0831   217.35   452.48   324.35   360.07   452.48   452.48   452.48  ±18.39%       10   slowest
+   · viem-ts: multicall (10000 calls chunked)       4.6082   211.74   226.38   217.01   219.44   226.38   226.38   226.38   ±1.54%       10
+   · viem-ts: multicall (10000 calls aggressive)    4.4791   208.15   332.02   223.26   216.06   332.02   332.02   332.02  ±12.28%       10
 stdout | call.bench.ts:60:9
 
 [viem-ts] RPC URL: http://127.0.0.1:8545
 
- ✓ call.bench.ts > Call 12071ms
+ ✓ call.bench.ts > Call 12043ms
      name                                      hz      min      max     mean      p75      p99     p995     p999     rme  samples
-   · viem-ts: call (basic)                52.9477  17.3304  28.7586  18.8866  19.3500  20.6765  28.7586  28.7586  ±1.23%      106   slowest
-   · viem-ts: call (with data)            53.6290  16.8545  23.6757  18.6466  19.1555  20.5655  23.6757  23.6757  ±0.90%      108
-   · viem-ts: call (with account)        3,859.70   0.1733   4.8377   0.2591   0.2613   0.5381   0.8549   3.3372  ±1.62%     7720   fastest
-   · viem-ts: call (decimals)             54.8536  16.6381  20.2276  18.2303  18.8790  19.9906  20.2276  20.2276  ±0.73%      110
-   · viem-ts: call (symbol)               54.5332  16.8738  21.4052  18.3374  18.7761  21.1877  21.4052  21.4052  ±0.74%      110
-   · viem-ts: call (balanceOf multiple)   54.0655  16.5249  23.7153  18.4961  19.0114  20.9718  23.7153  23.7153  ±0.93%      109
- ✓ abi.bench.ts > Abi 14603ms
+   · viem-ts: call (basic)                53.4200  16.6377  42.3919  18.7196  19.3177  21.2729  42.3919  42.3919  ±2.57%      107   slowest
+   · viem-ts: call (with data)            53.9100  16.6400  21.1670  18.5494  19.4367  20.6487  21.1670  21.1670  ±0.98%      108
+   · viem-ts: call (with account)        3,080.83   0.1847  24.3602   0.3246   0.3190   1.2669   1.7940   6.0882  ±4.24%     6162   fastest
+   · viem-ts: call (decimals)             56.3967  16.2400  22.2416  17.7315  17.9699  19.8998  22.2416  22.2416  ±0.67%      113
+   · viem-ts: call (symbol)               56.3851  15.8045  31.5376  17.7352  17.8475  19.5228  31.5376  31.5376  ±1.49%      113
+   · viem-ts: call (balanceOf multiple)   57.1064  16.0539  18.9206  17.5112  17.7489  18.4775  18.9206  18.9206  ±0.47%      115
+ ✓ abi.bench.ts > Abi 14318ms
      name                                         hz     min      max    mean     p75     p99    p995    p999     rme  samples
-   · viem-ts: abi (encode simple)         147,858.13  0.0062   0.7504  0.0068  0.0066  0.0112  0.0145  0.0309  ±0.17%   295717
-   · viem-ts: abi (encode complex)        113,737.88  0.0070  61.3080  0.0088  0.0075  0.0185  0.0285  0.0863  ±6.49%   227476   slowest
-   · viem-ts: abi (encode multi-arg)      118,973.27  0.0077   0.7198  0.0084  0.0082  0.0132  0.0172  0.0338  ±0.35%   237947
-   · viem-ts: abi (decode result)         982,751.44  0.0007   2.0180  0.0010  0.0009  0.0029  0.0041  0.0097  ±0.57%  1965503
-   · viem-ts: abi (encodePacked)        1,480,830.90  0.0005  39.0627  0.0007  0.0006  0.0011  0.0017  0.0056  ±4.06%  2961662   fastest
-   · viem-ts: abi (encodePacked multi)    884,008.83  0.0009   5.1605  0.0011  0.0011  0.0030  0.0041  0.0081  ±0.56%  1768018
- ✓ signature.bench.ts > Signature 10668ms
-     name                                           hz     min      max    mean     p75     p99    p995     p999     rme  samples
-   · viem-ts: signature (hashMessage)        75,034.86  0.0060  32.7163  0.0133  0.0065  0.0640  0.1398   1.3641  ±6.17%   150070
-   · viem-ts: signature (hashMessage long)   52,335.08  0.0134   8.3215  0.0191  0.0189  0.0871  0.1260   0.3223  ±1.60%   104671
-   · viem-ts: signature (recoverAddress)        389.32  1.4677  71.7787  2.5686  2.5834  7.0750  9.1242  71.7787  ±7.19%      779   slowest
-   · viem-ts: signature (verifyMessage)         586.00  1.4731  16.3087  1.7065  1.6558  5.0310  8.1392  15.0910  ±2.90%     1172
-   · viem-ts: signature (parseSignature)    566,375.88  0.0015   6.9271  0.0018  0.0017  0.0027  0.0031   0.0096  ±0.70%  1132752   fastest
- ✓ event.bench.ts > Event 6097ms
+   · viem-ts: abi (encode simple)         112,369.61  0.0080  11.7555  0.0089  0.0085  0.0133  0.0185  0.0678  ±1.58%   224740
+   · viem-ts: abi (encode complex)        108,570.72  0.0086   1.4863  0.0092  0.0091  0.0130  0.0147  0.0325  ±0.24%   217142
+   · viem-ts: abi (encode multi-arg)      101,107.54  0.0093   0.3675  0.0099  0.0097  0.0137  0.0157  0.0331  ±0.27%   202216   slowest
+   · viem-ts: abi (decode result)         942,524.56  0.0008   1.6422  0.0011  0.0010  0.0025  0.0039  0.0055  ±0.30%  1885050
+   · viem-ts: abi (encodePacked)        1,434,745.94  0.0005   3.9840  0.0007  0.0007  0.0009  0.0018  0.0048  ±0.59%  2869492   fastest
+   · viem-ts: abi (encodePacked multi)    759,683.27  0.0010   3.5080  0.0013  0.0012  0.0038  0.0046  0.0078  ±0.60%  1519485
+ ✓ event.bench.ts > Event 6090ms
      name                                      hz     min     max    mean     p75     p99    p995    p999     rme  samples
-   · viem-ts: event (decode transfer)   96,811.73  0.0091  0.4250  0.0103  0.0098  0.0312  0.0347  0.0808  ±0.22%   193624   fastest
-   · viem-ts: event (decode batch 10)    9,708.48  0.0922  4.0580  0.1030  0.0979  0.2492  0.3718  0.5449  ±0.74%    19417
-   · viem-ts: event (decode batch 100)     988.77  0.9366  5.1739  1.0114  1.0074  1.5244  1.8655  3.3287  ±0.78%     1978   slowest
- ✓ hash.bench.ts > Hash 16200ms
+   · viem-ts: event (decode transfer)   82,216.07  0.0107  5.2133  0.0122  0.0115  0.0233  0.0304  0.1335  ±0.95%   164433   fastest
+   · viem-ts: event (decode batch 10)    8,512.66  0.1097  0.5923  0.1175  0.1150  0.2485  0.3592  0.4399  ±0.35%    17026
+   · viem-ts: event (decode batch 100)     852.77  1.0977  2.9042  1.1726  1.1587  1.6988  1.8592  2.1693  ±0.48%     1706   slowest
+ ✓ signature.bench.ts > Signature 10489ms
+     name                                           hz     min      max    mean     p75     p99    p995    p999     rme  samples
+   · viem-ts: signature (hashMessage)       118,253.60  0.0079   1.0227  0.0085  0.0083  0.0120  0.0155  0.0285  ±0.21%   236508
+   · viem-ts: signature (hashMessage long)   54,778.02  0.0174   0.2860  0.0183  0.0180  0.0229  0.0294  0.0609  ±0.16%   109557
+   · viem-ts: signature (recoverAddress)        627.25  1.4816  21.1562  1.5943  1.5813  1.8625  1.9488  4.7358  ±1.96%     1255
+   · viem-ts: signature (verifyMessage)         608.31  1.4728  14.5813  1.6439  1.5864  2.9465  3.7072  5.1185  ±1.62%     1217   slowest
+   · viem-ts: signature (parseSignature)    524,660.57  0.0017   3.7245  0.0019  0.0019  0.0023  0.0024  0.0078  ±0.45%  1049322   fastest
+ ✓ hash.bench.ts > Hash 14923ms
      name                                       hz     min      max    mean     p75     p99    p995    p999     rme  samples
-   · viem-ts: hash (keccak256 short)    188,950.54  0.0050   0.4775  0.0053  0.0052  0.0075  0.0102  0.0214  ±0.12%   377902
-   · viem-ts: hash (keccak256 long)      22,000.81  0.0443   0.2712  0.0455  0.0452  0.0580  0.0639  0.0859  ±0.07%    44002   slowest
-   · viem-ts: hash (keccak256 hex)      188,614.07  0.0050   2.5730  0.0053  0.0052  0.0066  0.0088  0.0232  ±0.36%   377229
-   · viem-ts: hash (sha256 short)       612,024.03  0.0010  10.4698  0.0016  0.0013  0.0045  0.0078  0.0363  ±2.58%  1228902   fastest
-   · viem-ts: hash (sha256 long)         59,996.39  0.0122  13.7582  0.0167  0.0160  0.0476  0.0718  0.1498  ±1.60%   119993
-   · viem-ts: hash (function selector)  159,483.42  0.0059   0.6370  0.0063  0.0062  0.0094  0.0127  0.0254  ±0.14%   318967
-   · viem-ts: hash (event selector)     152,400.44  0.0060  18.8436  0.0066  0.0063  0.0097  0.0127  0.0352  ±1.89%   304801
- ✓ address.bench.ts > Address 17280ms
+   · viem-ts: hash (keccak256 short)    140,160.94  0.0068   1.1914  0.0071  0.0070  0.0088  0.0110  0.0219  ±0.17%   280322
+   · viem-ts: hash (keccak256 long)      16,510.37  0.0590   0.5164  0.0606  0.0602  0.0717  0.0791  0.1095  ±0.10%    33021   slowest
+   · viem-ts: hash (keccak256 hex)      140,717.83  0.0068   0.2364  0.0071  0.0070  0.0085  0.0104  0.0210  ±0.13%   281436
+   · viem-ts: hash (sha256 short)       686,003.85  0.0011   1.8893  0.0015  0.0013  0.0044  0.0066  0.0091  ±0.30%  1372008   fastest
+   · viem-ts: hash (sha256 long)         71,595.49  0.0128   0.5365  0.0140  0.0139  0.0183  0.0235  0.0472  ±0.16%   143191
+   · viem-ts: hash (function selector)  120,511.26  0.0078   0.2536  0.0083  0.0082  0.0107  0.0144  0.0281  ±0.16%   241023
+   · viem-ts: hash (event selector)     115,799.59  0.0080  10.0605  0.0086  0.0083  0.0164  0.0185  0.0430  ±1.01%   231600
+ ✓ address.bench.ts > Address 15551ms
      name                                          hz     min     max    mean     p75     p99    p995    p999     rme  samples
-   · viem-ts: address (isAddress)        4,317,000.63  0.0001  2.4796  0.0002  0.0002  0.0003  0.0005  0.0022  ±0.34%  8634002   fastest
-   · viem-ts: address (isAddress lower)  4,311,821.83  0.0001  8.6224  0.0002  0.0002  0.0003  0.0004  0.0017  ±1.16%  8623644
-   · viem-ts: address (checksum)         1,626,527.16  0.0003  9.7878  0.0006  0.0005  0.0010  0.0037  0.0123  ±1.91%  3253055
-   · viem-ts: address (create)             134,917.39  0.0065  1.2365  0.0074  0.0070  0.0158  0.0235  0.0454  ±0.55%   269835
-   · viem-ts: address (create2)             70,897.89  0.0118  6.3163  0.0141  0.0124  0.0358  0.0580  0.2101  ±1.78%   141796   slowest
- ✓ unit.bench.ts > Unit 30674ms
-     name                                        hz     min     max    mean     p75     p99    p995    p999     rme   samples
-   · viem-ts: unit (parseEther)        2,971,393.98  0.0002  2.7652  0.0003  0.0003  0.0005  0.0005  0.0019  ±0.42%   5942788   slowest
-   · viem-ts: unit (parseEther large)  4,280,944.24  0.0001  6.9059  0.0002  0.0002  0.0003  0.0003  0.0006  ±0.69%   8561889
-   · viem-ts: unit (formatEther)       6,545,928.59  0.0000  6.0276  0.0002  0.0002  0.0002  0.0003  0.0005  ±0.89%  13091858
-   · viem-ts: unit (parseUnits 6)      4,773,301.40  0.0001  0.0702  0.0002  0.0002  0.0003  0.0003  0.0004  ±0.04%   9546603
-   · viem-ts: unit (parseGwei)         4,958,002.53  0.0001  1.6296  0.0002  0.0002  0.0003  0.0003  0.0004  ±0.17%   9916006
-   · viem-ts: unit (formatUnits)       6,935,394.85  0.0000  2.1180  0.0001  0.0002  0.0002  0.0002  0.0004  ±0.56%  13870790   fastest
- ✓ ens.bench.ts > Ens 11225ms
-     name                                   hz     min      max    mean     p75     p99    p995    p999     rme  samples
-   · viem-ts: ens (namehash)         48,404.12  0.0199   0.2432  0.0207  0.0205  0.0277  0.0361  0.0599  ±0.11%    96809
-   · viem-ts: ens (namehash deep)    24,459.45  0.0396   0.2687  0.0409  0.0405  0.0538  0.0631  0.1440  ±0.14%    48919   slowest
-   · viem-ts: ens (labelhash)       186,641.85  0.0050   0.2705  0.0054  0.0053  0.0077  0.0086  0.0168  ±0.13%   373284
-   · viem-ts: ens (normalize)       758,844.81  0.0009  10.4220  0.0013  0.0010  0.0028  0.0036  0.0093  ±3.58%  1517690   fastest
-   · viem-ts: ens (normalize long)  264,859.18  0.0025  19.8302  0.0038  0.0028  0.0064  0.0086  0.0208  ±4.98%   529719
+   · viem-ts: address (isAddress)        3,351,032.72  0.0002  2.0910  0.0003  0.0003  0.0004  0.0007  0.0020  ±0.46%  6702072   fastest
+   · viem-ts: address (isAddress lower)  3,311,219.76  0.0002  0.9816  0.0003  0.0003  0.0004  0.0005  0.0017  ±0.67%  6622440
+   · viem-ts: address (checksum)         1,223,023.88  0.0005  9.1893  0.0008  0.0007  0.0012  0.0025  0.0087  ±1.69%  2446048
+   · viem-ts: address (create)             103,397.69  0.0089  1.1063  0.0097  0.0093  0.0161  0.0191  0.0414  ±0.57%   206796
+   · viem-ts: address (create2)             57,150.92  0.0159  2.1013  0.0175  0.0165  0.0245  0.0328  0.2292  ±0.87%   114343   slowest
+ ✓ unit.bench.ts > Unit 31544ms
+     name                                        hz     min      max    mean     p75     p99    p995    p999     rme   samples
+   · viem-ts: unit (parseEther)        4,148,034.93  0.0002   1.6086  0.0002  0.0002  0.0003  0.0003  0.0005  ±0.21%   8296070
+   · viem-ts: unit (parseEther large)  4,055,151.55  0.0002   1.4996  0.0002  0.0002  0.0003  0.0003  0.0006  ±0.29%   8110304   slowest
+   · viem-ts: unit (formatEther)       6,523,000.58  0.0000  21.6528  0.0002  0.0002  0.0002  0.0002  0.0004  ±2.41%  13046002
+   · viem-ts: unit (parseUnits 6)      4,706,299.43  0.0001   0.0656  0.0002  0.0002  0.0003  0.0003  0.0004  ±0.03%   9412599
+   · viem-ts: unit (parseGwei)         4,598,677.88  0.0001   1.2832  0.0002  0.0002  0.0003  0.0003  0.0006  ±0.40%   9197356
+   · viem-ts: unit (formatUnits)       6,961,427.82  0.0000   0.4362  0.0001  0.0002  0.0002  0.0002  0.0003  ±0.09%  13922856   fastest
+ ✓ ens.bench.ts > Ens 11230ms
+     name                                     hz     min     max    mean     p75     p99    p995    p999     rme  samples
+   · viem-ts: ens (namehash)           34,501.85  0.0272  6.4340  0.0290  0.0278  0.0573  0.0655  0.1340  ±0.91%    69004
+   · viem-ts: ens (namehash deep)      17,931.04  0.0542  1.3444  0.0558  0.0552  0.0706  0.0805  0.2165  ±0.21%    35863   slowest
+   · viem-ts: ens (labelhash)         138,798.74  0.0069  0.2703  0.0072  0.0071  0.0095  0.0107  0.0230  ±0.13%   277598
+   · viem-ts: ens (normalize)       1,021,912.94  0.0008  2.2105  0.0010  0.0010  0.0012  0.0013  0.0042  ±0.29%  2043826   fastest
+   · viem-ts: ens (normalize long)    381,724.35  0.0023  0.2312  0.0026  0.0025  0.0030  0.0037  0.0125  ±0.25%   763449
 
 
  BENCH  Summary
 
   viem-ts: abi (encodePacked) - abi.bench.ts > Abi
-    1.51x faster than viem-ts: abi (decode result)
-    1.68x faster than viem-ts: abi (encodePacked multi)
-    10.02x faster than viem-ts: abi (encode simple)
-    12.45x faster than viem-ts: abi (encode multi-arg)
-    13.02x faster than viem-ts: abi (encode complex)
+    1.52x faster than viem-ts: abi (decode result)
+    1.89x faster than viem-ts: abi (encodePacked multi)
+    12.77x faster than viem-ts: abi (encode simple)
+    13.21x faster than viem-ts: abi (encode complex)
+    14.19x faster than viem-ts: abi (encode multi-arg)
 
   viem-ts: address (isAddress) - address.bench.ts > Address
-    1.00x faster than viem-ts: address (isAddress lower)
-    2.65x faster than viem-ts: address (checksum)
-    32.00x faster than viem-ts: address (create)
-    60.89x faster than viem-ts: address (create2)
+    1.01x faster than viem-ts: address (isAddress lower)
+    2.74x faster than viem-ts: address (checksum)
+    32.41x faster than viem-ts: address (create)
+    58.63x faster than viem-ts: address (create2)
 
   viem-ts: call (with account) - call.bench.ts > Call
-    70.36x faster than viem-ts: call (decimals)
-    70.78x faster than viem-ts: call (symbol)
-    71.39x faster than viem-ts: call (balanceOf multiple)
-    71.97x faster than viem-ts: call (with data)
-    72.90x faster than viem-ts: call (basic)
+    53.95x faster than viem-ts: call (balanceOf multiple)
+    54.63x faster than viem-ts: call (decimals)
+    54.64x faster than viem-ts: call (symbol)
+    57.15x faster than viem-ts: call (with data)
+    57.67x faster than viem-ts: call (basic)
 
   viem-ts: ens (normalize) - ens.bench.ts > Ens
-    2.87x faster than viem-ts: ens (normalize long)
-    4.07x faster than viem-ts: ens (labelhash)
-    15.68x faster than viem-ts: ens (namehash)
-    31.02x faster than viem-ts: ens (namehash deep)
+    2.68x faster than viem-ts: ens (normalize long)
+    7.36x faster than viem-ts: ens (labelhash)
+    29.62x faster than viem-ts: ens (namehash)
+    56.99x faster than viem-ts: ens (namehash deep)
 
   viem-ts: event (decode transfer) - event.bench.ts > Event
-    9.97x faster than viem-ts: event (decode batch 10)
-    97.91x faster than viem-ts: event (decode batch 100)
+    9.66x faster than viem-ts: event (decode batch 10)
+    96.41x faster than viem-ts: event (decode batch 100)
 
   viem-ts: hash (sha256 short) - hash.bench.ts > Hash
-    3.24x faster than viem-ts: hash (keccak256 short)
-    3.24x faster than viem-ts: hash (keccak256 hex)
-    3.84x faster than viem-ts: hash (function selector)
-    4.02x faster than viem-ts: hash (event selector)
-    10.20x faster than viem-ts: hash (sha256 long)
-    27.82x faster than viem-ts: hash (keccak256 long)
+    4.88x faster than viem-ts: hash (keccak256 hex)
+    4.89x faster than viem-ts: hash (keccak256 short)
+    5.69x faster than viem-ts: hash (function selector)
+    5.92x faster than viem-ts: hash (event selector)
+    9.58x faster than viem-ts: hash (sha256 long)
+    41.55x faster than viem-ts: hash (keccak256 long)
 
-  viem-ts: multicall (token metadata) - multicall.bench.ts > Multicall
-    1.08x faster than viem-ts: multicall (multi-contract)
-    1.16x faster than viem-ts: multicall (with args)
-    1.29x faster than viem-ts: multicall (basic)
-    1.41x faster than viem-ts: multicall (10 calls)
-    1.54x faster than viem-ts: multicall (deployless)
+  viem-ts: multicall (with args) - multicall.bench.ts > Multicall
+    1.01x faster than viem-ts: multicall (token metadata)
+    1.07x faster than viem-ts: multicall (basic)
+    1.09x faster than viem-ts: multicall (multi-contract)
+    1.27x faster than viem-ts: multicall (10 calls)
+    1.46x faster than viem-ts: multicall (deployless)
     2.42x faster than viem-ts: multicall (30 calls)
-    3.49x faster than viem-ts: multicall (50 calls)
-    6.09x faster than viem-ts: multicall (100 calls)
-    6.52x faster than viem-ts: multicall (100 mixed contracts)
-    11.44x faster than viem-ts: multicall (200 calls)
-    24.75x faster than viem-ts: multicall (500 calls)
-    47.49x faster than viem-ts: multicall (1000 calls)
-    455.77x faster than viem-ts: multicall (10000 calls aggressive)
-    458.19x faster than viem-ts: multicall (10000 calls single RPC)
-    471.73x faster than viem-ts: multicall (10000 calls chunked)
+    3.43x faster than viem-ts: multicall (50 calls)
+    6.11x faster than viem-ts: multicall (100 mixed contracts)
+    6.16x faster than viem-ts: multicall (100 calls)
+    12.48x faster than viem-ts: multicall (200 calls)
+    26.31x faster than viem-ts: multicall (500 calls)
+    49.92x faster than viem-ts: multicall (1000 calls)
+    507.29x faster than viem-ts: multicall (10000 calls chunked)
+    521.92x faster than viem-ts: multicall (10000 calls aggressive)
+    758.23x faster than viem-ts: multicall (10000 calls single RPC)
 
   viem-ts: signature (parseSignature) - signature.bench.ts > Signature
-    7.55x faster than viem-ts: signature (hashMessage)
-    10.82x faster than viem-ts: signature (hashMessage long)
-    966.52x faster than viem-ts: signature (verifyMessage)
-    1454.77x faster than viem-ts: signature (recoverAddress)
+    4.44x faster than viem-ts: signature (hashMessage)
+    9.58x faster than viem-ts: signature (hashMessage long)
+    836.45x faster than viem-ts: signature (recoverAddress)
+    862.48x faster than viem-ts: signature (verifyMessage)
 
   viem-ts: unit (formatUnits) - unit.bench.ts > Unit
-    1.06x faster than viem-ts: unit (formatEther)
-    1.40x faster than viem-ts: unit (parseGwei)
-    1.45x faster than viem-ts: unit (parseUnits 6)
-    1.62x faster than viem-ts: unit (parseEther large)
-    2.33x faster than viem-ts: unit (parseEther)
+    1.07x faster than viem-ts: unit (formatEther)
+    1.48x faster than viem-ts: unit (parseUnits 6)
+    1.51x faster than viem-ts: unit (parseGwei)
+    1.68x faster than viem-ts: unit (parseEther)
+    1.72x faster than viem-ts: unit (parseEther large)
 
