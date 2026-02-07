@@ -21,12 +21,14 @@ FORK_URL ?= https://eth.drpc.org
 RPC_URL := http://127.0.0.1:$(ANVIL_PORT)
 GO_BENCH_COUNT ?= 1
 GO_BENCH_TIME ?= 2s
+DRY_RUN ?= 0
 
 # Export for child processes
 export ANVIL_PORT
 export FORK_URL
 export FORK_BLOCK
 export ANVIL_RPC_URL := $(RPC_URL)
+export DRY_RUN
 
 # Default target
 help:
@@ -45,6 +47,9 @@ help:
 	@echo "  make clean                    Clean results directory"
 	@echo "  make anvil                    Start Anvil manually"
 	@echo "  make anvil-stop               Stop running Anvil instance"
+	@echo ""
+	@echo "Flags:"
+	@echo "  DRY_RUN=1                     Run benchmarks without writing results to files"
 	@echo ""
 	@echo "Single Benchmark Examples:"
 	@echo "  make bench-single BENCH=call      # Compare call benchmarks"
@@ -97,12 +102,14 @@ _bench-sequential:
 	@echo "=============================================="
 	@echo "Benchmarks Complete"
 	@echo "=============================================="
+ifneq ($(DRY_RUN),1)
 	@echo ""
 	@echo "Results saved to:"
 	@echo "  - results/go-results.txt"
-	@echo "  - results/ts-results.json"
+	@echo "  - results/ts-results.txt"
 	@echo ""
 	$(MAKE) compare
+endif
 	@echo ""
 	@echo "=============================================="
 	@echo "Done"
@@ -112,12 +119,22 @@ _bench-sequential:
 # Run Go benchmarks only
 bench-go:
 	@echo "Running Go benchmarks against $(RPC_URL)..."
+ifeq ($(DRY_RUN),1)
+	@echo "[DRY RUN] Results will not be saved to file"
+	cd .. && go test -bench=. -benchmem -benchtime=$(GO_BENCH_TIME) -count=$(GO_BENCH_COUNT) ./benchmarks/go/...
+else
 	cd .. && go test -bench=. -benchmem -benchtime=$(GO_BENCH_TIME) -count=$(GO_BENCH_COUNT) ./benchmarks/go/... 2>&1 | tee benchmarks/results/go-results.txt
+endif
 
 # Run TypeScript benchmarks only
 bench-ts:
 	@echo "Running TypeScript benchmarks against $(RPC_URL)..."
+ifeq ($(DRY_RUN),1)
+	@echo "[DRY RUN] Results will not be saved to file"
+	cd typescript && npm run bench
+else
 	cd typescript && npm run bench 2>&1 | tee ../results/ts-results.txt
+endif
 
 # Run Go benchmarks with standalone Anvil lifecycle
 bench-go-standalone:

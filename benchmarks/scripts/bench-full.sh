@@ -26,8 +26,9 @@ ANVIL_PORT=${ANVIL_PORT:-8545}
 FORK_URL=${FORK_URL:-"https://eth.drpc.org"}
 FORK_BLOCK=${FORK_BLOCK:-}
 ANVIL_TIMEOUT=${ANVIL_TIMEOUT:-30}
-GO_BENCH_TIME=${GO_BENCH_TIME:-10s}
-GO_BENCH_COUNT=${GO_BENCH_COUNT:-5}
+GO_BENCH_TIME=${GO_BENCH_TIME:-2s}
+GO_BENCH_COUNT=${GO_BENCH_COUNT:-1}
+DRY_RUN=${DRY_RUN:-0}
 
 # Colors for output
 RED='\033[0;31m'
@@ -225,30 +226,46 @@ START_TIME=$(date +%s)
 log_header "Running All Go Benchmarks"
 
 cd ..
-go test -bench=. -benchmem -benchtime=$GO_BENCH_TIME -count=$GO_BENCH_COUNT \
-    ./benchmarks/go/... 2>&1 | tee benchmarks/results/go-results.txt
-GO_EXIT_CODE=${PIPESTATUS[0]}
+if [ "$DRY_RUN" = "1" ]; then
+    log_info "[DRY RUN] Results will not be saved to file"
+    go test -bench=. -benchmem -benchtime=$GO_BENCH_TIME -count=$GO_BENCH_COUNT \
+        ./benchmarks/go/...
+    GO_EXIT_CODE=$?
+else
+    go test -bench=. -benchmem -benchtime=$GO_BENCH_TIME -count=$GO_BENCH_COUNT \
+        ./benchmarks/go/... 2>&1 | tee benchmarks/results/go-results.txt
+    GO_EXIT_CODE=${PIPESTATUS[0]}
+fi
 cd benchmarks
 
 if [ $GO_EXIT_CODE -ne 0 ]; then
     log_warn "Go benchmarks had errors (exit code: $GO_EXIT_CODE)"
 fi
 
-log_info "Go results saved to: results/go-results.txt"
+if [ "$DRY_RUN" != "1" ]; then
+    log_info "Go results saved to: results/go-results.txt"
+fi
 
 # Run all TypeScript benchmarks
 log_header "Running All TypeScript Benchmarks"
 
 cd typescript
-$RUN_CMD bench 2>&1 | tee ../results/ts-results.txt
-TS_EXIT_CODE=${PIPESTATUS[0]}
+if [ "$DRY_RUN" = "1" ]; then
+    $RUN_CMD bench
+    TS_EXIT_CODE=$?
+else
+    $RUN_CMD bench 2>&1 | tee ../results/ts-results.txt
+    TS_EXIT_CODE=${PIPESTATUS[0]}
+fi
 cd ..
 
 if [ $TS_EXIT_CODE -ne 0 ]; then
     log_warn "TypeScript benchmarks had errors (exit code: $TS_EXIT_CODE)"
 fi
 
-log_info "TypeScript results saved to: results/ts-results.txt"
+if [ "$DRY_RUN" != "1" ]; then
+    log_info "TypeScript results saved to: results/ts-results.txt"
+fi
 
 # Calculate total time
 END_TIME=$(date +%s)
@@ -256,11 +273,13 @@ TOTAL_TIME=$((END_TIME - START_TIME))
 TOTAL_MINUTES=$((TOTAL_TIME / 60))
 TOTAL_SECONDS=$((TOTAL_TIME % 60))
 
-# Generate comprehensive comparison report
-log_header "Generating Comprehensive Comparison Report"
-
-# Run the comparison script in full mode
-bun run compare.ts --mode full
+# Generate comprehensive comparison report (skip in dry run)
+if [ "$DRY_RUN" = "1" ]; then
+    log_info "[DRY RUN] Skipping report generation"
+else
+    log_header "Generating Comprehensive Comparison Report"
+    bun run compare.ts --mode full
+fi
 
 log_header "Full Benchmark Suite Complete"
 

@@ -74,6 +74,7 @@ interface OverallStats {
   avgGoNsPerOp: number
   avgTsNsPerOp: number
   avgRatio: number
+  geoMeanSpeedup: number  // geometric mean of per-benchmark speedup ratios
   overallWinner: 'go' | 'ts' | 'tie'
   overallSpeedup: number
   overallSummary: string
@@ -417,13 +418,23 @@ function calculateSuiteStats(comparisons: ComparisonResult[]): SuiteStats[] {
     const avgGoNsPerOp = suiteComparisons.reduce((sum, c) => sum + c.goNsPerOp, 0) / suiteComparisons.length
     const avgTsNsPerOp = suiteComparisons.reduce((sum, c) => sum + c.tsNsPerOp, 0) / suiteComparisons.length
     const avgRatio = avgGoNsPerOp / avgTsNsPerOp
-    const avgSpeedup = avgRatio > 1 ? avgRatio : 1 / avgRatio
+
+    // Geometric mean of per-benchmark speedup ratios (signed: >1 = Go faster, <1 = TS faster)
+    const logSum = suiteComparisons.reduce((sum, c) => {
+      // ratio < 1 means Go is faster, so signed speedup = 1/ratio for Go wins
+      const signedSpeedup = c.ratio < 1 ? 1 / c.ratio : -c.ratio
+      return sum + Math.log(Math.abs(signedSpeedup))
+    }, 0)
+    // Simpler: geometric mean of tsNs/goNs ratios (>1 = Go faster)
+    const geoLogSum = suiteComparisons.reduce((sum, c) => sum + Math.log(c.tsNsPerOp / c.goNsPerOp), 0)
+    const geoMeanRatio = Math.exp(geoLogSum / suiteComparisons.length)
+    const avgSpeedup = geoMeanRatio >= 1 ? geoMeanRatio : 1 / geoMeanRatio
     
     let winner: 'go' | 'ts' | 'tie'
-    if (Math.abs(avgRatio - 1) < 0.05) {
+    if (Math.abs(geoMeanRatio - 1) < 0.05) {
       winner = 'tie'
     } else {
-      winner = avgRatio > 1 ? 'ts' : 'go'
+      winner = geoMeanRatio > 1 ? 'go' : 'ts'
     }
     
     let summary: string
@@ -461,22 +472,28 @@ function calculateOverallStats(comparisons: ComparisonResult[]): OverallStats {
   const avgTsNsPerOp = comparisons.reduce((sum, c) => sum + c.tsNsPerOp, 0) / comparisons.length
   const avgRatio = avgGoNsPerOp / avgTsNsPerOp
 
+  // Geometric mean of per-benchmark speedup ratios: tsNs/goNs (>1 = Go faster)
+  // This weights all benchmarks equally regardless of absolute magnitude,
+  // so a 47x hash win and a 2x multicall win contribute equally.
+  const geoLogSum = comparisons.reduce((sum, c) => sum + Math.log(c.tsNsPerOp / c.goNsPerOp), 0)
+  const geoMeanSpeedup = Math.exp(geoLogSum / comparisons.length)
+
   let overallWinner: 'go' | 'ts' | 'tie'
-  if (Math.abs(avgRatio - 1) < 0.05) {
+  if (Math.abs(geoMeanSpeedup - 1) < 0.05) {
     overallWinner = 'tie'
   } else {
-    overallWinner = avgRatio > 1 ? 'ts' : 'go'
+    overallWinner = geoMeanSpeedup > 1 ? 'go' : 'ts'
   }
 
-  const overallSpeedup = avgRatio > 1 ? avgRatio : 1 / avgRatio
+  const overallSpeedup = geoMeanSpeedup >= 1 ? geoMeanSpeedup : 1 / geoMeanSpeedup
 
   let overallSummary: string
   if (overallWinner === 'tie') {
     overallSummary = '🤝 Performance is similar between Go and TypeScript'
   } else if (overallWinner === 'go') {
-    overallSummary = `🏆 Go is ${overallSpeedup.toFixed(2)}x faster overall`
+    overallSummary = `🏆 Go is ${overallSpeedup.toFixed(2)}x faster overall (geometric mean)`
   } else {
-    overallSummary = `🏆 TypeScript is ${overallSpeedup.toFixed(2)}x faster overall`
+    overallSummary = `🏆 TypeScript is ${overallSpeedup.toFixed(2)}x faster overall (geometric mean)`
   }
 
   const suiteStats = calculateSuiteStats(comparisons)
@@ -490,6 +507,7 @@ function calculateOverallStats(comparisons: ComparisonResult[]): OverallStats {
     avgGoNsPerOp,
     avgTsNsPerOp,
     avgRatio,
+    geoMeanSpeedup,
     overallWinner,
     overallSpeedup,
     overallSummary,
@@ -590,6 +608,9 @@ function generateConsoleReport(comparisons: ComparisonResult[], stats: OverallSt
   console.log(`  TS wins:          ${stats.tsWins} (${((stats.tsWins / stats.totalBenchmarks) * 100).toFixed(0)}%)`)
   console.log(`  Ties:             ${stats.ties} (${((stats.ties / stats.totalBenchmarks) * 100).toFixed(0)}%)`)
   console.log('')
+  console.log(`  Geometric mean:   Go ${stats.geoMeanSpeedup.toFixed(2)}x faster`)
+  console.log(`  Arithmetic mean:  Go ${(stats.avgTsNsPerOp / stats.avgGoNsPerOp).toFixed(2)}x faster (skewed by large RPC benchmarks)`)
+  console.log('')
   console.log(`  Avg Go:           ${formatNumber(stats.avgGoNsPerOp, 0)} ns/op (${formatNumber(1_000_000_000 / stats.avgGoNsPerOp, 0)} ops/s)`)
   console.log(`  Avg TS:           ${formatNumber(stats.avgTsNsPerOp, 0)} ns/op (${formatNumber(1_000_000_000 / stats.avgTsNsPerOp, 0)} ops/s)`)
   console.log('')
@@ -614,15 +635,16 @@ function generateMarkdownReport(comparisons: ComparisonResult[], stats: OverallS
   // Overall Summary
   md += '## Overall Summary\n\n'
   if (stats.overallWinner === 'go') {
-    md += `**🏆 Go is ${stats.overallSpeedup.toFixed(2)}x faster overall**\n\n`
+    md += `**🏆 Go is ${stats.overallSpeedup.toFixed(2)}x faster overall** (geometric mean)\n\n`
   } else if (stats.overallWinner === 'ts') {
-    md += `**🏆 TypeScript is ${stats.overallSpeedup.toFixed(2)}x faster overall**\n\n`
+    md += `**🏆 TypeScript is ${stats.overallSpeedup.toFixed(2)}x faster overall** (geometric mean)\n\n`
   } else {
     md += `**🤝 Performance is similar between Go and TypeScript**\n\n`
   }
 
   md += `| Metric | Go | TypeScript |\n`
   md += `|--------|----|-----------|\n`
+  md += `| Geometric mean speedup | ${stats.geoMeanSpeedup.toFixed(2)}x | - |\n`
   md += `| Avg ns/op | ${formatNumber(stats.avgGoNsPerOp, 0)} | ${formatNumber(stats.avgTsNsPerOp, 0)} |\n`
   md += `| Avg ops/s | ${formatNumber(1_000_000_000 / stats.avgGoNsPerOp, 0)} | ${formatNumber(1_000_000_000 / stats.avgTsNsPerOp, 0)} |\n`
   md += `| Wins | ${stats.goWins}/${stats.totalBenchmarks} | ${stats.tsWins}/${stats.totalBenchmarks} |\n\n`
@@ -920,9 +942,9 @@ function generateSpeedupChart(comparisons: ComparisonResult[], stats: OverallSta
   w(`<text x="${width / 2}" y="34" text-anchor="middle" font-family="system-ui,sans-serif" font-size="18" font-weight="700" fill="#111827">viem-go vs viem (TypeScript) &#8212; Speedup</text>`)
 
   const subtitle = stats.overallWinner === 'go'
-    ? `Go is ${stats.overallSpeedup.toFixed(1)}x faster overall across ${stats.totalBenchmarks} benchmarks`
+    ? `Go is ${stats.overallSpeedup.toFixed(1)}x faster overall (geometric mean, ${stats.totalBenchmarks} benchmarks)`
     : stats.overallWinner === 'ts'
-    ? `TypeScript is ${stats.overallSpeedup.toFixed(1)}x faster overall`
+    ? `TypeScript is ${stats.overallSpeedup.toFixed(1)}x faster overall (geometric mean)`
     : `Similar performance across ${stats.totalBenchmarks} benchmarks`
   w(`<text x="${width / 2}" y="54" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#6B7280">${escapeXml(subtitle)} &#183; log scale</text>`)
 

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"math/big"
 	"strconv"
-	"strings"
+	"sync"
 )
 
 // ErrInvalidDecimalNumber is returned when the value is not a valid decimal number.
@@ -21,35 +21,70 @@ func init() {
 	}
 }
 
-// isValidDecimal checks if a string is a valid decimal number without using regex.
-// Matches the pattern: ^(-?)([0-9]*)\.?([0-9]*)$ with at least one digit.
-func isValidDecimal(s string) bool {
+// Pool for reusing big.Int allocations.
+var bigIntPool = sync.Pool{
+	New: func() any { return new(big.Int) },
+}
+
+func getBigInt() *big.Int {
+	return bigIntPool.Get().(*big.Int)
+}
+
+// Pre-computed zero-padding strings to avoid strings.Repeat allocations.
+// Index i contains a string of i zeros. Covers up to 78 decimals.
+var zeroPad [79]string
+
+func init() {
+	var buf [79]byte
+	for i := range buf {
+		buf[i] = '0'
+	}
+	for i := 0; i < len(zeroPad); i++ {
+		zeroPad[i] = string(buf[:i])
+	}
+}
+
+// parseAndSplit does validation + splitting in a single pass over the string.
+// Returns integer part, fraction part, whether the value is negative, and whether it's valid.
+func parseAndSplit(s string) (integer, fraction string, negative, valid bool) {
 	if len(s) == 0 {
-		return false
+		return "", "", false, false
 	}
 
-	i := 0
+	start := 0
 	if s[0] == '-' {
-		i++
+		negative = true
+		start = 1
 	}
 
-	hasDot := false
+	dot := -1
 	hasDigit := false
 
-	for ; i < len(s); i++ {
+	for i := start; i < len(s); i++ {
 		c := s[i]
-		switch {
-		case c >= '0' && c <= '9':
+		if c >= '0' && c <= '9' {
 			hasDigit = true
-		case c == '.' && !hasDot:
-			hasDot = true
-		default:
-			return false
+		} else if c == '.' && dot < 0 {
+			dot = i
+		} else {
+			return "", "", false, false
 		}
 	}
 
-	// Must have at least one digit, or just "." alone is invalid
-	return hasDigit
+	if !hasDigit {
+		return "", "", false, false
+	}
+
+	if dot < 0 {
+		integer = s[start:]
+		fraction = ""
+	} else {
+		integer = s[start:dot]
+		fraction = s[dot+1:]
+	}
+
+	valid = true
+	return
 }
 
 // ParseUnits multiplies a string representation of a number by a given exponent
@@ -66,17 +101,10 @@ func isValidDecimal(s string) bool {
 //	ParseUnits("1.5", 18)
 //	// big.Int representing 1500000000000000000
 func ParseUnits(value string, decimals int) (*big.Int, error) {
-	if !isValidDecimal(value) {
+	// Single-pass validation + splitting
+	integer, fraction, negative, valid := parseAndSplit(value)
+	if !valid {
 		return nil, ErrInvalidDecimalNumber
-	}
-
-	// Split into integer and fraction parts
-	integer, fraction := splitDecimal(value)
-
-	negative := false
-	if len(integer) > 0 && integer[0] == '-' {
-		negative = true
-		integer = integer[1:]
 	}
 
 	// Trim trailing zeros from fraction
@@ -84,28 +112,20 @@ func ParseUnits(value string, decimals int) (*big.Int, error) {
 
 	// Handle rounding when fraction is larger than decimals
 	if decimals == 0 {
-		// Round the fraction
-		if len(fraction) > 0 {
-			// Check if first digit >= 5
-			if fraction[0] >= '5' {
-				integer = incrementString(integer)
-			}
+		if len(fraction) > 0 && fraction[0] >= '5' {
+			integer = incrementString(integer)
 		}
 		fraction = ""
 	} else if len(fraction) > decimals {
-		// Round off if fraction is larger than decimals
 		left := fraction[:decimals-1]
 		unit := fraction[decimals-1]
 		right := fraction[decimals:]
 
-		// Calculate rounded value
 		roundVal, _ := strconv.ParseFloat(string(unit)+"."+right, 64)
 		rounded := int(roundVal + 0.5)
 
 		if rounded > 9 {
-			// Carry over
 			fraction = incrementString(left) + "0"
-			// Pad to ensure proper length
 			for len(fraction) < len(left)+1 {
 				fraction = "0" + fraction
 			}
@@ -113,7 +133,6 @@ func ParseUnits(value string, decimals int) (*big.Int, error) {
 			fraction = left + strconv.Itoa(rounded)
 		}
 
-		// Check if we need to carry to integer
 		if len(fraction) > decimals {
 			fraction = fraction[1:]
 			integer = incrementString(integer)
@@ -121,48 +140,94 @@ func ParseUnits(value string, decimals int) (*big.Int, error) {
 
 		fraction = fraction[:decimals]
 	} else {
-		// Pad fraction with trailing zeros using a single allocation
+		// Pad fraction with trailing zeros — use pre-computed pad to avoid allocation
 		if pad := decimals - len(fraction); pad > 0 {
-			fraction = fraction + strings.Repeat("0", pad)
+			if pad < len(zeroPad) {
+				fraction = fraction + zeroPad[pad]
+			} else {
+				buf := make([]byte, len(fraction)+pad)
+				copy(buf, fraction)
+				for i := len(fraction); i < len(buf); i++ {
+					buf[i] = '0'
+				}
+				fraction = string(buf)
+			}
 		}
 	}
 
-	// Handle empty integer
 	if integer == "" {
 		integer = "0"
 	}
 
-	// Combine integer and fraction, then parse
-	combined := integer + fraction
+	intLen := len(integer)
+	fracLen := len(fraction)
+	combinedLen := intLen + fracLen
 
-	// Fast path: if the combined value fits in uint64, avoid big.Int.SetString
-	if !negative && len(combined) <= 19 {
-		val, err := strconv.ParseUint(combined, 10, 64)
-		if err == nil {
-			return new(big.Int).SetUint64(val), nil
+	// Fast path: combined fits in uint64 (up to 19 digits)
+	if !negative && combinedLen <= 19 {
+		val := uint64(0)
+		for i := 0; i < intLen; i++ {
+			val = val*10 + uint64(integer[i]-'0')
 		}
+		for i := 0; i < fracLen; i++ {
+			val = val*10 + uint64(fraction[i]-'0')
+		}
+		return new(big.Int).SetUint64(val), nil
 	}
 
+	// Arithmetic path: if integer and fraction each fit in uint64, compute
+	// result = integer * 10^decimals + fraction using big.Int arithmetic.
+	// This avoids big.Int.SetString which is the main bottleneck for large values.
+	// Covers the common case: ParseEther("123456789.123456789012345678")
+	// where integer="123456789" (9 digits) and fraction has 18 digits.
+	if intLen <= 19 && fracLen <= 19 && decimals < len(powersOf10) {
+		intVal := uint64(0)
+		for i := 0; i < intLen; i++ {
+			intVal = intVal*10 + uint64(integer[i]-'0')
+		}
+		fracVal := uint64(0)
+		for i := 0; i < fracLen; i++ {
+			fracVal = fracVal*10 + uint64(fraction[i]-'0')
+		}
+
+		// result = intVal * 10^decimals + fracVal
+		result := getBigInt()
+		result.SetUint64(intVal)
+		result.Mul(result, powersOf10[decimals])
+		result.Add(result, new(big.Int).SetUint64(fracVal))
+
+		if negative {
+			result.Neg(result)
+		}
+		return result, nil
+	}
+
+	// Slow path: concatenate and use big.Int.SetString
+	if combinedLen <= 96 {
+		var buf [96]byte
+		copy(buf[:intLen], integer)
+		copy(buf[intLen:], fraction)
+		result := getBigInt()
+		_, ok := result.SetString(string(buf[:combinedLen]), 10)
+		if !ok {
+			bigIntPool.Put(result)
+			return nil, ErrInvalidDecimalNumber
+		}
+		if negative {
+			result.Neg(result)
+		}
+		return result, nil
+	}
+
+	combined := integer + fraction
 	result, ok := new(big.Int).SetString(combined, 10)
 	if !ok {
 		return nil, ErrInvalidDecimalNumber
 	}
-
 	if negative {
 		result.Neg(result)
 	}
-
 	return result, nil
-}
-
-// splitDecimal splits a decimal string into integer and fraction parts.
-// Avoids strings.Split which allocates a slice.
-func splitDecimal(s string) (integer, fraction string) {
-	dot := strings.IndexByte(s, '.')
-	if dot < 0 {
-		return s, ""
-	}
-	return s[:dot], s[dot+1:]
 }
 
 // trimRight trims trailing bytes from a string without allocating if nothing to trim.
@@ -190,12 +255,16 @@ func incrementString(s string) string {
 	}
 
 	// Fallback to big.Int for huge numbers
-	v, ok := new(big.Int).SetString(s, 10)
+	v := getBigInt()
+	_, ok := v.SetString(s, 10)
 	if !ok {
+		bigIntPool.Put(v)
 		return "1"
 	}
 	v.Add(v, big.NewInt(1))
-	return v.String()
+	result := v.String()
+	bigIntPool.Put(v)
+	return result
 }
 
 // MustParseUnits is like ParseUnits but panics on error.

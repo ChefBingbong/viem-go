@@ -33,6 +33,7 @@ FORK_BLOCK=${FORK_BLOCK:-}
 ANVIL_TIMEOUT=${ANVIL_TIMEOUT:-30}
 GO_BENCH_TIME=${GO_BENCH_TIME:-2s}
 GO_BENCH_COUNT=${GO_BENCH_COUNT:-1}
+DRY_RUN=${DRY_RUN:-0}
 BENCH_NAME=""
 
 # Colors for output
@@ -291,9 +292,16 @@ log_info "Settings: time=$GO_BENCH_TIME, count=$GO_BENCH_COUNT"
 GO_BENCH_PATTERN="."
 
 cd ..
-go test -bench=$GO_BENCH_PATTERN -benchmem -benchtime=$GO_BENCH_TIME -count=$GO_BENCH_COUNT \
-    ./benchmarks/go/${BENCH_NAME}_bench_test.go ./benchmarks/go/main_test.go 2>&1 | tee benchmarks/$GO_RESULT_FILE
-GO_EXIT_CODE=${PIPESTATUS[0]}
+if [ "$DRY_RUN" = "1" ]; then
+    log_info "[DRY RUN] Results will not be saved to file"
+    go test -bench=$GO_BENCH_PATTERN -benchmem -benchtime=$GO_BENCH_TIME -count=$GO_BENCH_COUNT \
+        ./benchmarks/go/${BENCH_NAME}_bench_test.go ./benchmarks/go/main_test.go
+    GO_EXIT_CODE=$?
+else
+    go test -bench=$GO_BENCH_PATTERN -benchmem -benchtime=$GO_BENCH_TIME -count=$GO_BENCH_COUNT \
+        ./benchmarks/go/${BENCH_NAME}_bench_test.go ./benchmarks/go/main_test.go 2>&1 | tee benchmarks/$GO_RESULT_FILE
+    GO_EXIT_CODE=${PIPESTATUS[0]}
+fi
 cd benchmarks
 
 if [ $GO_EXIT_CODE -ne 0 ]; then
@@ -301,16 +309,22 @@ if [ $GO_EXIT_CODE -ne 0 ]; then
     exit $GO_EXIT_CODE
 fi
 
-log_info "Go results saved to: $GO_RESULT_FILE"
+if [ "$DRY_RUN" != "1" ]; then
+    log_info "Go results saved to: $GO_RESULT_FILE"
+fi
 
 # Run TypeScript benchmark
 log_subheader "Running TypeScript Benchmark: ${BENCH_NAME}"
 log_info "Package manager: $PKG_MANAGER"
 
 cd typescript
-# Run only the specific benchmark file
-$RUN_CMD bench -- "${BENCH_NAME}.bench.ts" 2>&1 | tee ../$TS_RESULT_FILE
-TS_EXIT_CODE=${PIPESTATUS[0]}
+if [ "$DRY_RUN" = "1" ]; then
+    $RUN_CMD bench -- "${BENCH_NAME}.bench.ts"
+    TS_EXIT_CODE=$?
+else
+    $RUN_CMD bench -- "${BENCH_NAME}.bench.ts" 2>&1 | tee ../$TS_RESULT_FILE
+    TS_EXIT_CODE=${PIPESTATUS[0]}
+fi
 cd ..
 
 if [ $TS_EXIT_CODE -ne 0 ]; then
@@ -318,19 +332,25 @@ if [ $TS_EXIT_CODE -ne 0 ]; then
     exit $TS_EXIT_CODE
 fi
 
-log_info "TypeScript results saved to: $TS_RESULT_FILE"
+if [ "$DRY_RUN" != "1" ]; then
+    log_info "TypeScript results saved to: $TS_RESULT_FILE"
+fi
 
-# Generate comparison report
-log_subheader "Generating Comparison Report"
-
-# Run the comparison script in single-bench mode
-bun run compare.ts --bench "$BENCH_NAME" --go-results "$GO_RESULT_FILE" --ts-results "$TS_RESULT_FILE"
+# Generate comparison report (skip in dry run)
+if [ "$DRY_RUN" = "1" ]; then
+    log_info "[DRY RUN] Skipping report generation"
+else
+    log_subheader "Generating Comparison Report"
+    bun run compare.ts --bench "$BENCH_NAME" --go-results "$GO_RESULT_FILE" --ts-results "$TS_RESULT_FILE"
+fi
 
 log_header "Benchmark Complete: ${BENCH_NAME}"
 
-echo ""
-log_info "Results files:"
-log_info "  Go:         $GO_RESULT_FILE"
-log_info "  TypeScript: $TS_RESULT_FILE"
-log_info "  Comparison: results/${BENCH_NAME}-comparison.md"
-echo ""
+if [ "$DRY_RUN" != "1" ]; then
+    echo ""
+    log_info "Results files:"
+    log_info "  Go:         $GO_RESULT_FILE"
+    log_info "  TypeScript: $TS_RESULT_FILE"
+    log_info "  Comparison: results/${BENCH_NAME}-comparison.md"
+    echo ""
+fi

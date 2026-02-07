@@ -25,8 +25,9 @@ ANVIL_PORT=${ANVIL_PORT:-8545}
 FORK_URL=${FORK_URL:-"https://eth.drpc.org"}
 FORK_BLOCK=${FORK_BLOCK:-}
 ANVIL_TIMEOUT=${ANVIL_TIMEOUT:-30}
-GO_BENCH_TIME=${GO_BENCH_TIME:-10s}
-GO_BENCH_COUNT=${GO_BENCH_COUNT:-5}
+GO_BENCH_TIME=${GO_BENCH_TIME:-2s}
+GO_BENCH_COUNT=${GO_BENCH_COUNT:-1}
+DRY_RUN=${DRY_RUN:-0}
 
 # Colors for output
 RED='\033[0;31m'
@@ -167,13 +168,21 @@ echo ""
 
 # Run Go benchmarks
 cd ..
-go test -bench=. -benchmem -benchtime=$GO_BENCH_TIME -count=$GO_BENCH_COUNT ./benchmarks/go/... 2>&1 | tee benchmarks/results/go-results.txt
-GO_EXIT_CODE=${PIPESTATUS[0]}
+if [ "$DRY_RUN" = "1" ]; then
+    log_info "[DRY RUN] Results will not be saved to file"
+    go test -bench=. -benchmem -benchtime=$GO_BENCH_TIME -count=$GO_BENCH_COUNT ./benchmarks/go/...
+    GO_EXIT_CODE=$?
+else
+    go test -bench=. -benchmem -benchtime=$GO_BENCH_TIME -count=$GO_BENCH_COUNT ./benchmarks/go/... 2>&1 | tee benchmarks/results/go-results.txt
+    GO_EXIT_CODE=${PIPESTATUS[0]}
+fi
 cd benchmarks
 
 if [ $GO_EXIT_CODE -eq 0 ]; then
     log_header "Go Benchmarks Complete"
-    log_info "Results saved to: results/go-results.txt"
+    if [ "$DRY_RUN" != "1" ]; then
+        log_info "Results saved to: results/go-results.txt"
+    fi
 else
     log_error "Go benchmarks failed with exit code: $GO_EXIT_CODE"
     exit $GO_EXIT_CODE
