@@ -21,14 +21,6 @@ func init() {
 	}
 }
 
-// powerOf10 returns 10^n from cache (for n < 78) or computes it.
-func powerOf10(n int) *big.Int {
-	if n >= 0 && n < len(powersOf10) {
-		return powersOf10[n]
-	}
-	return new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(n)), nil)
-}
-
 // isValidDecimal checks if a string is a valid decimal number without using regex.
 // Matches the pattern: ^(-?)([0-9]*)\.?([0-9]*)$ with at least one digit.
 func isValidDecimal(s string) bool {

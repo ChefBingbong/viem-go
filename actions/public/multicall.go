@@ -687,14 +687,6 @@ func encodeAggregate3(calls []Call3) ([]byte, error) {
 	return result, nil
 }
 
-// aggregate3ResultTuple is the struct layout matching the aggregate3 return type.
-// go-ethereum's ABI unpacker maps directly into this struct, avoiding all the
-// type-switching and map lookups of the generic decoder.
-type aggregate3ResultTuple struct {
-	Success    bool   `abi:"success"`
-	ReturnData []byte `abi:"returnData"`
-}
-
 // decodeAggregate3Result decodes the result from aggregate3.
 // Uses pre-parsed go-ethereum Arguments and direct struct unpacking for speed,
 // bypassing the generic DecodeAbiParameters path entirely.
