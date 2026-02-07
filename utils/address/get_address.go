@@ -3,7 +3,7 @@ package address
 import (
 	"errors"
 	"fmt"
-	"strings"
+	"strconv"
 
 	"golang.org/x/crypto/sha3"
 )
@@ -12,6 +12,22 @@ var (
 	// ErrInvalidAddress is returned when an address is not valid
 	ErrInvalidAddress = errors.New("invalid address")
 )
+
+// checksumAddressCache is an LRU cache for checksummed addresses.
+// Mirrors viem's checksumAddressCache with 8192 entries.
+var checksumAddressCache = newAddressStringCache(8192)
+
+// Reusable hex lookup for lowercase conversion without allocation.
+var hexLower [256]byte
+
+func init() {
+	for i := range hexLower {
+		hexLower[i] = byte(i)
+	}
+	for c := byte('A'); c <= byte('F'); c++ {
+		hexLower[c] = c + 32 // A->a, B->b, etc.
+	}
+}
 
 // ChecksumAddress converts an address to EIP-55 checksum format.
 // Optionally supports EIP-1191 chain-specific checksums (not recommended for general use).
@@ -25,43 +41,72 @@ var (
 //	checksumAddress("0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac")
 //	// "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC"
 func ChecksumAddress(address string, chainId ...int64) Address {
-	// Get lowercase address without 0x
-	addr := strings.ToLower(strings.TrimPrefix(address, "0x"))
-	addr = strings.TrimPrefix(addr, "0X")
-
-	// Prepare the string to hash
-	var hashInput string
+	// Check cache
+	cacheKey := address
 	if len(chainId) > 0 && chainId[0] > 0 {
-		// EIP-1191: include chain ID
-		hashInput = fmt.Sprintf("%d0x%s", chainId[0], addr)
-	} else {
-		hashInput = addr
+		cacheKey = address + "." + strconv.FormatInt(chainId[0], 10)
+	}
+	if cached, ok := checksumAddressCache.Get(cacheKey); ok {
+		return Address(cached)
 	}
 
-	// Keccak256 hash
-	hash := keccak256([]byte(hashInput))
+	result := checksumAddressCore(address, chainId...)
+	checksumAddressCache.Set(cacheKey, string(result))
+	return result
+}
 
-	// Apply checksum
-	result := make([]byte, 40)
+// checksumAddressCore is the uncached checksum computation.
+func checksumAddressCore(address string, chainId ...int64) Address {
+	// Stack-allocated buffer for the lowercase 40-char address
+	var addrBuf [40]byte
+
+	// Strip "0x"/"0X" prefix and lowercase in one pass — no allocation
+	src := address
+	if len(src) >= 2 && (src[0] == '0' && (src[1] == 'x' || src[1] == 'X')) {
+		src = src[2:]
+	}
+	if len(src) != 40 {
+		return Address(address) // invalid, return as-is
+	}
 	for i := 0; i < 40; i++ {
-		c := addr[i]
-		hashByte := hash[i/2]
+		addrBuf[i] = hexLower[src[i]]
+	}
+
+	// Keccak256 hash — reuse stack buffer for output
+	var hashBuf [32]byte
+	hasher := sha3.NewLegacyKeccak256()
+
+	if len(chainId) > 0 && chainId[0] > 0 {
+		// EIP-1191: include chain ID prefix
+		prefix := strconv.AppendInt(nil, chainId[0], 10)
+		hasher.Write(prefix)
+		hasher.Write([]byte("0x"))
+	}
+	hasher.Write(addrBuf[:])
+	hasher.Sum(hashBuf[:0]) // write into stack buffer, no alloc
+
+	// Apply checksum into a stack-allocated result buffer
+	var result [42]byte
+	result[0] = '0'
+	result[1] = 'x'
+	for i := 0; i < 40; i++ {
+		c := addrBuf[i]
 
 		var nibble byte
 		if i%2 == 0 {
-			nibble = hashByte >> 4
+			nibble = hashBuf[i/2] >> 4
 		} else {
-			nibble = hashByte & 0x0f
+			nibble = hashBuf[i/2] & 0x0f
 		}
 
 		if nibble >= 8 && c >= 'a' && c <= 'f' {
-			result[i] = c - 32 // Convert to uppercase
+			result[i+2] = c - 32
 		} else {
-			result[i] = c
+			result[i+2] = c
 		}
 	}
 
-	return "0x" + Address(result)
+	return Address(result[:])
 }
 
 // GetAddress validates an address and returns it in checksummed format.
