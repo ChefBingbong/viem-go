@@ -1,0 +1,307 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-brand-navy: #5a5785;
+  --color-brand-blue: #3991cd;
+  --color-accent: #3991cd;
+  --color-accent-low: #1a2942;
+  --color-accent-high: #5fb8e8;
+
+  --color-gray-1: #e8eef4;
+  --color-gray-2: #b8c5d4;
+  --color-gray-3: #8494a8;
+  --color-gray-4: #5a6778;
+  --color-gray-5: #3a4555;
+  --color-gray-6: #252d3a;
+  --color-dark-bg: #171c24;
+  --color-dark-deep: #0d1117;
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-dark-bg);
+  color: #e8eef4;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gray-5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gray-4);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gray-5) transparent;
+}
+
+/* Cursor blink animation */
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-cursor-blink {
+  animation: cursorBlink 1s step-end infinite;
+}
+
+/* Sidebar slide-in animation */
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.2s ease-out;
+}
+
+/* ============================================
+   DOCS PROSE STYLING
+   Matches the Astro/Starlight blue-tinted dark
+   theme for documentation content.
+   ============================================ */
+
+.docs-prose {
+  color: var(--color-gray-2);
+  line-height: 1.75;
+  font-size: 1rem;
+}
+
+/* Headings */
+.docs-prose h1,
+.docs-prose h2,
+.docs-prose h3,
+.docs-prose h4 {
+  color: #ffffff;
+  font-weight: 600;
+  line-height: 1.3;
+  scroll-margin-top: 5rem;
+}
+
+.docs-prose h1 {
+  font-size: 2rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.docs-prose h2 {
+  font-size: 1.5rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(57, 145, 205, 0.15);
+}
+
+.docs-prose h3 {
+  font-size: 1.25rem;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.docs-prose h4 {
+  font-size: 1.1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Paragraphs */
+.docs-prose p {
+  margin-bottom: 1.25rem;
+  color: var(--color-gray-2);
+  line-height: 1.7;
+}
+
+/* Links */
+.docs-prose a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.docs-prose a:hover {
+  text-decoration: underline;
+  color: var(--color-accent-high);
+}
+
+/* Strong / Bold */
+.docs-prose strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Lists */
+.docs-prose ul,
+.docs-prose ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.docs-prose ul {
+  list-style: disc;
+}
+
+.docs-prose ol {
+  list-style: decimal;
+}
+
+.docs-prose li {
+  margin-bottom: 0.375rem;
+  color: var(--color-gray-2);
+  line-height: 1.7;
+}
+
+.docs-prose li::marker {
+  color: var(--color-gray-4);
+}
+
+/* Inline code */
+.docs-prose :not(pre) > code {
+  background: rgba(37, 45, 58, 0.8);
+  border: 1px solid rgba(57, 145, 205, 0.15);
+  color: var(--color-gray-1);
+  padding: 0.15em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+/* Code blocks (pre) -- for raw markdown fences */
+.docs-prose pre {
+  background: rgba(37, 45, 58, 0.8);
+  border: 1px solid rgba(57, 145, 205, 0.2);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+.docs-prose pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  color: var(--color-gray-1);
+}
+
+/* Blockquotes */
+.docs-prose blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding: 0.5rem 1rem;
+  margin: 1.5rem 0;
+  background: rgba(57, 145, 205, 0.05);
+  border-radius: 0 0.5rem 0.5rem 0;
+  color: var(--color-gray-3);
+}
+
+.docs-prose blockquote p {
+  margin-bottom: 0;
+  color: var(--color-gray-3);
+}
+
+/* Tables -- use !important to override Tailwind preflight resets */
+.docs-prose table {
+  display: table !important;
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin: 1.5rem 0 !important;
+  font-size: 0.9375rem;
+  border: 1px solid rgba(57, 145, 205, 0.15) !important;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.docs-prose thead {
+  display: table-header-group !important;
+}
+
+.docs-prose tbody {
+  display: table-row-group !important;
+}
+
+.docs-prose tr {
+  display: table-row !important;
+}
+
+.docs-prose th,
+.docs-prose td {
+  display: table-cell !important;
+  padding: 0.75rem 1rem !important;
+  text-align: left !important;
+  border-bottom: 1px solid rgba(57, 145, 205, 0.12) !important;
+  border-right: none !important;
+  border-left: none !important;
+  border-top: none !important;
+}
+
+.docs-prose tr:last-child td {
+  border-bottom: none !important;
+}
+
+.docs-prose th {
+  background: var(--color-gray-6) !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid rgba(57, 145, 205, 0.25) !important;
+}
+
+.docs-prose td {
+  color: var(--color-gray-2);
+  background: rgba(37, 45, 58, 0.3);
+}
+
+.docs-prose tr:hover td {
+  background: rgba(37, 45, 58, 0.6);
+}
+
+/* Horizontal rules */
+.docs-prose hr {
+  border: none;
+  border-top: 1px solid rgba(57, 145, 205, 0.15);
+  margin: 2rem 0;
+}
+
+/* Images */
+.docs-prose img {
+  border-radius: 0.5rem;
+  border: 1px solid rgba(57, 145, 205, 0.15);
+  margin: 1.5rem 0;
+  max-width: 100%;
+}
+
+/* Definition lists / details */
+.docs-prose details {
+  background: rgba(37, 45, 58, 0.5);
+  border: 1px solid rgba(57, 145, 205, 0.15);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.docs-prose summary {
+  cursor: pointer;
+  color: #ffffff;
+  font-weight: 500;
+}

@@ -1,0 +1,112 @@
+---
+title: Why viem-go
+description: Learn why viem-go provides a better developer experience for Ethereum in Go
+---
+
+
+<div data-pagefind-weight="10">
+
+viem-go is a Go port of the popular TypeScript [viem](https://viem.sh) library. It provides idiomatic Go APIs for interacting with Ethereum, following viem's design philosophy while embracing Go conventions.
+
+## The Goal
+
+If you've used viem in TypeScript, you know how pleasant the developer experience is. viem-go aims to bring that same experience to Go developers:
+
+- **Familiar patterns** — Same Client/Transport/Action architecture
+- **Readable code** — APIs that make sense without diving into docs
+- **Comprehensive** — From basic RPC calls to contract interactions
+
+</div>
+
+## Why Not Just Use go-ethereum?
+
+go-ethereum is excellent for low-level operations, but it can be verbose for common tasks. viem-go provides higher-level abstractions while still using go-ethereum under the hood for cryptographic primitives.
+
+<CodeGroup 
+
+  tabs={[
+    {
+      title: "viem-go",
+      language: "go",
+      code: `// Reading an ERC20 balance
+result, _ := client.ReadContract(ctx, client.ReadContractOptions{
+    Address:      common.HexToAddress("0xA0b86991c..."),
+    ABI:          \`[{"name":"balanceOf","type":"function",...}]\`,
+    FunctionName: "balanceOf",
+    Args:         []any{ownerAddress},
+})
+balance := result.(*big.Int)`
+    },
+    {
+      title: "go-ethereum",
+      language: "go",
+      code: `// The same operation with raw go-ethereum
+contractABI, _ := abi.JSON(strings.NewReader(abiJSON))
+data, _ := contractABI.Pack("balanceOf", ownerAddress)
+msg := ethereum.CallMsg{To: &contractAddr, Data: data}
+result, _ := client.CallContract(ctx, msg, nil)
+var balance *big.Int
+contractABI.UnpackIntoInterface(&balance, "balanceOf", result)`
+    }
+  ]}
+/>
+
+## Design Principles
+
+### 1. Mirror viem's API
+
+When possible, viem-go uses the same function names, option structs, and patterns as viem. This makes it easy to translate examples and share knowledge between TypeScript and Go codebases.
+
+### 2. Idiomatic Go
+
+While mirroring viem, we embrace Go conventions:
+- Explicit error handling (no panic)
+- Context for cancellation
+- Interfaces for flexibility
+- Struct options instead of variadic params
+
+### 3. Built on go-ethereum
+
+viem-go doesn't reinvent cryptographic wheels. It uses go-ethereum for:
+- Keccak256 hashing
+- ECDSA signing
+- ABI encoding/decoding
+- RLP serialization
+
+### 4. Comprehensive Testing
+
+The test suite runs against actual Ethereum nodes (via Anvil) to ensure real-world compatibility.
+
+## What's Implemented
+
+viem-go is under active development. Current features include:
+
+<div style={{background: 'rgba(37,45,58,0.5)', border: '1px solid rgba(57,145,205,0.2)', borderRadius: '0.75rem', overflow: 'hidden', margin: '1.5rem 0'}}>
+  <div style={{display: 'flex', padding: '0.75rem 1.25rem', background: 'rgba(23,28,36,0.6)', borderBottom: '1px solid rgba(57,145,205,0.15)', fontWeight: 600, color: '#ffffff', fontSize: '0.9375rem'}}>
+    <span style={{flex: 1}}>Feature</span>
+    <span>Status</span>
+  </div>
+  {[
+    'Public Client',
+    'Wallet Client',
+    'HTTP Transport',
+    'WebSocket Transport',
+    'Read Contract',
+    'Write Contract',
+    'Account Management',
+    'ABI Encoding/Decoding',
+    'Unit Utilities',
+    'Signature Utilities',
+    'ERC20/721/1155 Bindings',
+  ].map((feature) => (
+    <div key={feature} style={{display: 'flex', padding: '0.625rem 1.25rem', borderBottom: '1px solid rgba(57,145,205,0.08)', color: '#b8c5d4', fontSize: '0.9375rem'}}>
+      <span style={{flex: 1}}>{feature}</span>
+      <span style={{color: '#4ade80'}}>✅ Complete</span>
+    </div>
+  ))}
+</div>
+
+
+## Getting Started
+
+Ready to dive in? Head to the [Getting Started](/docs/getting-started/) guide to set up your first viem-go project.
