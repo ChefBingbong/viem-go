@@ -10,7 +10,7 @@
  *   bun run compare.ts --bench call --go-results X --ts-results Y  # Single benchmark mode
  */
 
-import { readFileSync, existsSync, writeFileSync } from 'fs'
+import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'fs'
 import { join } from 'path'
 import { parseArgs } from 'util'
 
@@ -757,6 +757,368 @@ function generateFullReport(comparisons: ComparisonResult[], stats: OverallStats
 }
 
 // ============================================================================
+// SVG Chart Generation
+// ============================================================================
+
+function escapeXml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+function formatChartLabel(benchmark: string): string {
+  const firstUnderscore = benchmark.indexOf('_')
+  if (firstUnderscore === -1) return benchmark
+  return benchmark
+    .slice(firstUnderscore + 1)
+    .replace(/10000Calls_?/g, '10K ')
+    .replace(/1000Calls/g, '1K Calls')
+    .replace(/(\d+)Calls/g, '$1 Calls')
+    .replace(/MixedContracts_(\d+)/g, '$1 Mixed')
+    .replace(/MultiContract/g, 'Multi-Contract')
+    .replace(/BalanceOfMultiple/g, 'BalanceOf Multi')
+    .replace(/WithData/g, 'With Data')
+    .replace(/WithAccount/g, 'With Account')
+    .replace(/WithArgs/g, 'With Args')
+    .replace(/TokenMetadata/g, 'Token Metadata')
+    .replace(/AggressiveChunking/g, 'Aggressive')
+    .replace(/SingleRPC/g, 'Single RPC')
+    .replace(/ChunkedParallel/g, 'Chunked')
+    .replace(/_/g, ' ')
+    .trim()
+}
+
+function generateSpeedupChart(comparisons: ComparisonResult[], stats: OverallStats): string {
+  // Sort: group by suite, ascending speedup within each suite
+  const sorted = [...comparisons].sort((a, b) => {
+    if (a.suite !== b.suite) return a.suite.localeCompare(b.suite)
+    return a.speedup - b.speedup
+  })
+
+  const suites = [...new Set(sorted.map(c => c.suite))]
+
+  // Dimensions
+  const barH = 26
+  const barGap = 5
+  const suiteGap = 40
+  const margin = { top: 80, right: 90, bottom: 55, left: 200 }
+  const width = 880
+
+  // Calculate chart content height
+  let contentH = sorted.length * (barH + barGap) + suites.length * suiteGap
+  const height = contentH + margin.top + margin.bottom
+  const chartW = width - margin.left - margin.right
+
+  // Log scale
+  const maxSpd = Math.max(...sorted.map(c => c.speedup))
+  const logCeil = Math.ceil(Math.log10(maxSpd * 1.2))
+  const xScale = (v: number) => v <= 1 ? 0 : (Math.log10(v) / logCeil) * chartW
+
+  const GO = '#00ADD8'
+  const TS = '#3178C6'
+
+  const out: string[] = []
+  const w = (s: string) => out.push(s)
+
+  w(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`)
+
+  // Gradient definitions
+  w(`<defs>`)
+  w(`  <linearGradient id="goGrad" x1="0" y1="0" x2="1" y2="0">`)
+  w(`    <stop offset="0%" stop-color="${GO}" stop-opacity="0.95"/>`)
+  w(`    <stop offset="100%" stop-color="#0891B2" stop-opacity="0.85"/>`)
+  w(`  </linearGradient>`)
+  w(`  <linearGradient id="tsGrad" x1="0" y1="0" x2="1" y2="0">`)
+  w(`    <stop offset="0%" stop-color="${TS}" stop-opacity="0.95"/>`)
+  w(`    <stop offset="100%" stop-color="#1D4ED8" stop-opacity="0.85"/>`)
+  w(`  </linearGradient>`)
+  w(`</defs>`)
+
+  // Background
+  w(`<rect width="${width}" height="${height}" fill="#FAFAFA" rx="12"/>`)
+  w(`<rect x=".5" y=".5" width="${width - 1}" height="${height - 1}" fill="none" stroke="#E5E7EB" rx="12"/>`)
+
+  // Title
+  w(`<text x="${width / 2}" y="34" text-anchor="middle" font-family="system-ui,sans-serif" font-size="18" font-weight="700" fill="#111827">viem-go vs viem (TypeScript) &#8212; Speedup</text>`)
+
+  const subtitle = stats.overallWinner === 'go'
+    ? `Go is ${stats.overallSpeedup.toFixed(1)}x faster overall across ${stats.totalBenchmarks} benchmarks`
+    : stats.overallWinner === 'ts'
+    ? `TypeScript is ${stats.overallSpeedup.toFixed(1)}x faster overall`
+    : `Similar performance across ${stats.totalBenchmarks} benchmarks`
+  w(`<text x="${width / 2}" y="54" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#6B7280">${escapeXml(subtitle)} &#183; log scale</text>`)
+
+  // Chart area
+  w(`<g transform="translate(${margin.left},${margin.top})">`)
+
+  // Grid lines
+  for (const g of [1, 2, 5, 10, 20, 50, 100, 200, 500]) {
+    if (Math.log10(g) > logCeil) break
+    const x = xScale(g)
+    w(`  <line x1="${x.toFixed(1)}" y1="0" x2="${x.toFixed(1)}" y2="${contentH}" stroke="#E5E7EB"/>`)
+    w(`  <text x="${x.toFixed(1)}" y="${contentH + 16}" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#9CA3AF">${g}x</text>`)
+  }
+  // Baseline emphasis
+  w(`  <line x1="0" y1="0" x2="0" y2="${contentH}" stroke="#D1D5DB" stroke-width="1.5"/>`)
+
+  // Bars grouped by suite
+  let y = 0
+  for (const suite of suites) {
+    const items = sorted.filter(c => c.suite === suite)
+    const ss = stats.suiteStats.find(s => s.suite === suite)
+    const label = suite.charAt(0).toUpperCase() + suite.slice(1)
+    const avg = ss ? `avg ${ss.avgSpeedup.toFixed(1)}x` : ''
+
+    // Suite header
+    w(`  <text x="-10" y="${y + 16}" text-anchor="end" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#1F2937">${escapeXml(label)}</text>`)
+    w(`  <text x="-10" y="${y + 30}" text-anchor="end" font-family="system-ui,sans-serif" font-size="10" fill="#9CA3AF">${escapeXml(avg)}</text>`)
+    y += suiteGap
+
+    for (const c of items) {
+      const bw = Math.max(xScale(c.speedup), 3)
+      const fill = c.winner === 'go' ? 'url(#goGrad)' : 'url(#tsGrad)'
+      const lbl = formatChartLabel(c.benchmark)
+      const valColor = c.winner === 'go' ? '#0E7490' : '#1E40AF'
+
+      // Label
+      w(`  <text x="-10" y="${y + barH / 2 + 4}" text-anchor="end" font-family="system-ui,sans-serif" font-size="11.5" fill="#4B5563">${escapeXml(lbl)}</text>`)
+      // Bar
+      w(`  <rect x="0" y="${y}" width="${bw.toFixed(1)}" height="${barH}" fill="${fill}" rx="4"/>`)
+      // Value
+      const val = c.speedup >= 10 ? `${c.speedup.toFixed(0)}x` : `${c.speedup.toFixed(1)}x`
+      w(`  <text x="${(bw + 8).toFixed(1)}" y="${y + barH / 2 + 4}" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="${valColor}">${val}</text>`)
+
+      y += barH + barGap
+    }
+  }
+  w(`</g>`)
+
+  // Legend
+  w(`<g transform="translate(${width / 2 - 100},${height - 28})">`)
+  w(`  <rect width="14" height="14" fill="${GO}" rx="3"/>`)
+  w(`  <text x="18" y="11" font-family="system-ui,sans-serif" font-size="11" fill="#4B5563">Go faster</text>`)
+  w(`  <rect x="100" width="14" height="14" fill="${TS}" rx="3"/>`)
+  w(`  <text x="118" y="11" font-family="system-ui,sans-serif" font-size="11" fill="#4B5563">TS faster</text>`)
+  w(`</g>`)
+
+  w(`</svg>`)
+  return out.join('\n')
+}
+
+function generateLatencyChart(comparisons: ComparisonResult[], stats: OverallStats): string {
+  // Show side-by-side latency bars for Go vs TS (grouped bar chart)
+  // Select a representative subset to keep the chart readable
+  const sorted = [...comparisons].sort((a, b) => {
+    if (a.suite !== b.suite) return a.suite.localeCompare(b.suite)
+    return a.goNsPerOp - b.goNsPerOp
+  })
+
+  const suites = [...new Set(sorted.map(c => c.suite))]
+
+  // Dimensions
+  const pairH = 44 // two bars + label
+  const pairGap = 8
+  const suiteGap = 36
+  const margin = { top: 80, right: 100, bottom: 55, left: 200 }
+  const width = 880
+
+  let contentH = sorted.length * (pairH + pairGap) + suites.length * suiteGap
+  const height = contentH + margin.top + margin.bottom
+  const chartW = width - margin.left - margin.right
+
+  // Log scale for latency
+  const maxNs = Math.max(...sorted.map(c => Math.max(c.goNsPerOp, c.tsNsPerOp)))
+  const logCeil = Math.ceil(Math.log10(maxNs * 1.2))
+  const xScale = (v: number) => v <= 0 ? 0 : (Math.log10(v) / logCeil) * chartW
+
+  const GO = '#00ADD8'
+  const TS = '#3178C6'
+
+  const out: string[] = []
+  const w = (s: string) => out.push(s)
+
+  w(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`)
+
+  w(`<defs>`)
+  w(`  <linearGradient id="goGrad2" x1="0" y1="0" x2="1" y2="0">`)
+  w(`    <stop offset="0%" stop-color="${GO}" stop-opacity="0.9"/>`)
+  w(`    <stop offset="100%" stop-color="#0891B2" stop-opacity="0.8"/>`)
+  w(`  </linearGradient>`)
+  w(`  <linearGradient id="tsGrad2" x1="0" y1="0" x2="1" y2="0">`)
+  w(`    <stop offset="0%" stop-color="${TS}" stop-opacity="0.9"/>`)
+  w(`    <stop offset="100%" stop-color="#1D4ED8" stop-opacity="0.8"/>`)
+  w(`  </linearGradient>`)
+  w(`</defs>`)
+
+  // Background
+  w(`<rect width="${width}" height="${height}" fill="#FAFAFA" rx="12"/>`)
+  w(`<rect x=".5" y=".5" width="${width - 1}" height="${height - 1}" fill="none" stroke="#E5E7EB" rx="12"/>`)
+
+  // Title
+  w(`<text x="${width / 2}" y="34" text-anchor="middle" font-family="system-ui,sans-serif" font-size="18" font-weight="700" fill="#111827">Latency Comparison: Go vs TypeScript</text>`)
+  w(`<text x="${width / 2}" y="54" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#6B7280">Nanoseconds per operation (lower is better) &#183; log scale</text>`)
+
+  w(`<g transform="translate(${margin.left},${margin.top})">`)
+
+  // Grid lines
+  const gridLabels = ['1ns', '10ns', '100ns', '1&#181;s', '10&#181;s', '100&#181;s', '1ms', '10ms', '100ms', '1s']
+  for (let exp = 0; exp <= logCeil; exp++) {
+    const val = Math.pow(10, exp)
+    const x = xScale(val)
+    w(`  <line x1="${x.toFixed(1)}" y1="0" x2="${x.toFixed(1)}" y2="${contentH}" stroke="#E5E7EB"/>`)
+    if (exp < gridLabels.length) {
+      w(`  <text x="${x.toFixed(1)}" y="${contentH + 16}" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#9CA3AF">${gridLabels[exp]}</text>`)
+    }
+  }
+
+  let y = 0
+  for (const suite of suites) {
+    const items = sorted.filter(c => c.suite === suite)
+    const label = suite.charAt(0).toUpperCase() + suite.slice(1)
+
+    // Suite header
+    w(`  <text x="-10" y="${y + 16}" text-anchor="end" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#1F2937">${escapeXml(label)}</text>`)
+    y += suiteGap
+
+    for (const c of items) {
+      const lbl = formatChartLabel(c.benchmark)
+      const goW = Math.max(xScale(c.goNsPerOp), 3)
+      const tsW = Math.max(xScale(c.tsNsPerOp), 3)
+      const singleBarH = 16
+
+      // Label
+      w(`  <text x="-10" y="${y + pairH / 2}" text-anchor="end" font-family="system-ui,sans-serif" font-size="11.5" fill="#4B5563">${escapeXml(lbl)}</text>`)
+
+      // Go bar
+      w(`  <rect x="0" y="${y}" width="${goW.toFixed(1)}" height="${singleBarH}" fill="url(#goGrad2)" rx="3"/>`)
+      w(`  <text x="${(goW + 6).toFixed(1)}" y="${y + singleBarH / 2 + 4}" font-family="system-ui,sans-serif" font-size="10" fill="#0E7490">${formatDuration(c.goNsPerOp)}</text>`)
+
+      // TS bar
+      const tsY = y + singleBarH + 4
+      w(`  <rect x="0" y="${tsY}" width="${tsW.toFixed(1)}" height="${singleBarH}" fill="url(#tsGrad2)" rx="3"/>`)
+      w(`  <text x="${(tsW + 6).toFixed(1)}" y="${tsY + singleBarH / 2 + 4}" font-family="system-ui,sans-serif" font-size="10" fill="#1E40AF">${formatDuration(c.tsNsPerOp)}</text>`)
+
+      y += pairH + pairGap
+    }
+  }
+  w(`</g>`)
+
+  // Legend
+  w(`<g transform="translate(${width / 2 - 100},${height - 28})">`)
+  w(`  <rect width="14" height="14" fill="${GO}" rx="3"/>`)
+  w(`  <text x="18" y="11" font-family="system-ui,sans-serif" font-size="11" fill="#4B5563">Go (viem-go)</text>`)
+  w(`  <rect x="120" width="14" height="14" fill="${TS}" rx="3"/>`)
+  w(`  <text x="138" y="11" font-family="system-ui,sans-serif" font-size="11" fill="#4B5563">TypeScript (viem)</text>`)
+  w(`</g>`)
+
+  w(`</svg>`)
+  return out.join('\n')
+}
+
+function generateSummaryCard(comparisons: ComparisonResult[], stats: OverallStats): string {
+  const width = 640
+  const baseHeight = 120
+  const suiteRowH = 44
+  const height = baseHeight + stats.suiteStats.length * suiteRowH
+
+  const GO = '#00ADD8'
+  const TS = '#3178C6'
+
+  const out: string[] = []
+  const w = (s: string) => out.push(s)
+
+  w(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`)
+
+  // Background
+  w(`<rect width="${width}" height="${height}" fill="#FAFAFA" rx="12"/>`)
+  w(`<rect x=".5" y=".5" width="${width - 1}" height="${height - 1}" fill="none" stroke="#E5E7EB" rx="12"/>`)
+
+  // Title
+  w(`<text x="24" y="34" font-family="system-ui,sans-serif" font-size="16" font-weight="700" fill="#111827">viem-go Benchmark Summary</text>`)
+
+  // Overall badge
+  const badgeText = stats.overallWinner === 'go'
+    ? `Go ${stats.overallSpeedup.toFixed(1)}x faster`
+    : stats.overallWinner === 'ts'
+    ? `TS ${stats.overallSpeedup.toFixed(1)}x faster`
+    : 'Similar'
+  const badgeColor = stats.overallWinner === 'go' ? GO : stats.overallWinner === 'ts' ? TS : '#6B7280'
+  const badgeW = badgeText.length * 7.5 + 24
+  w(`<rect x="${width - badgeW - 20}" y="18" width="${badgeW}" height="26" fill="${badgeColor}" rx="13"/>`)
+  w(`<text x="${width - badgeW / 2 - 20}" y="35" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="white">${escapeXml(badgeText)}</text>`)
+
+  // Win distribution bar
+  const barY = 54
+  const barW = width - 48
+  const barH = 24
+  const goFrac = stats.goWins / stats.totalBenchmarks
+
+  w(`<rect x="24" y="${barY}" width="${barW}" height="${barH}" fill="#F3F4F6" rx="12"/>`)
+  if (goFrac > 0) {
+    const goW = Math.max(barW * goFrac, barH)
+    w(`<rect x="24" y="${barY}" width="${goW.toFixed(0)}" height="${barH}" fill="${GO}" rx="12"/>`)
+  }
+  if (1 - goFrac > 0.01) {
+    const tsW = Math.max(barW * (1 - goFrac - stats.ties / stats.totalBenchmarks), barH)
+    w(`<rect x="${(24 + barW - tsW).toFixed(0)}" y="${barY}" width="${tsW.toFixed(0)}" height="${barH}" fill="${TS}" rx="12"/>`)
+  }
+  w(`<text x="${width / 2}" y="${barY + 16}" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="white">${stats.goWins} Go wins &#183; ${stats.tsWins} TS wins &#183; ${stats.ties} ties (${stats.totalBenchmarks} total)</text>`)
+
+  // Suite breakdown
+  let sy = 100
+  const maxSuiteSpd = Math.max(...stats.suiteStats.map(s => s.avgSpeedup))
+  const suiteBarMaxW = 300
+
+  for (const suite of stats.suiteStats) {
+    const label = suite.suite.charAt(0).toUpperCase() + suite.suite.slice(1)
+    const color = suite.winner === 'go' ? GO : suite.winner === 'ts' ? TS : '#9CA3AF'
+    const barWidth = maxSuiteSpd > 1
+      ? (Math.log10(Math.max(suite.avgSpeedup, 1.01)) / Math.log10(maxSuiteSpd)) * suiteBarMaxW
+      : suiteBarMaxW
+
+    // Label
+    w(`<text x="24" y="${sy + 14}" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#374151">${escapeXml(label)}</text>`)
+    w(`<text x="24" y="${sy + 28}" font-family="system-ui,sans-serif" font-size="10" fill="#9CA3AF">${suite.totalBenchmarks} benchmarks</text>`)
+
+    // Bar
+    const bx = 130
+    w(`<rect x="${bx}" y="${sy}" width="${Math.max(barWidth, 4).toFixed(0)}" height="18" fill="${color}" rx="4" opacity="0.85"/>`)
+
+    // Speedup value
+    w(`<text x="${(bx + Math.max(barWidth, 4) + 10).toFixed(0)}" y="${sy + 14}" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="${color}">${suite.avgSpeedup.toFixed(1)}x</text>`)
+
+    sy += suiteRowH
+  }
+
+  // Footer
+  w(`<text x="${width / 2}" y="${height - 10}" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#D1D5DB">Benchmarked against Anvil (Mainnet Fork) &#183; Same RPC endpoint</text>`)
+
+  w(`</svg>`)
+  return out.join('\n')
+}
+
+function generateCharts(comparisons: ComparisonResult[], stats: OverallStats, outputDir: string): void {
+  const chartsDir = join(outputDir, 'charts')
+  if (!existsSync(chartsDir)) {
+    mkdirSync(chartsDir, { recursive: true })
+  }
+
+  const speedupSvg = generateSpeedupChart(comparisons, stats)
+  writeFileSync(join(chartsDir, 'speedup.svg'), speedupSvg)
+  console.log(`  Chart saved: ${join(chartsDir, 'speedup.svg')}`)
+
+  const latencySvg = generateLatencyChart(comparisons, stats)
+  writeFileSync(join(chartsDir, 'latency.svg'), latencySvg)
+  console.log(`  Chart saved: ${join(chartsDir, 'latency.svg')}`)
+
+  const summarySvg = generateSummaryCard(comparisons, stats)
+  writeFileSync(join(chartsDir, 'summary.svg'), summarySvg)
+  console.log(`  Chart saved: ${join(chartsDir, 'summary.svg')}`)
+}
+
+// ============================================================================
 // Main
 // ============================================================================
 
@@ -850,6 +1212,14 @@ async function main() {
     writeFileSync(join(resultsDir, 'comparison.md'), standardReport)
     console.log(`Standard comparison saved to: ${join(resultsDir, 'comparison.md')}`)
   }
+
+  // Generate SVG charts
+  console.log('\nGenerating charts...')
+  generateCharts(comparisons, stats, resultsDir)
+  console.log('\nCharts ready! Reference them in your README:')
+  console.log('  ![Speedup](benchmarks/results/charts/speedup.svg)')
+  console.log('  ![Latency](benchmarks/results/charts/latency.svg)')
+  console.log('  ![Summary](benchmarks/results/charts/summary.svg)')
 }
 
 main().catch((err) => {

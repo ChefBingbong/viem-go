@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="208" viewBox="0 0 640 208">
+<rect width="640" height="208" fill="#FAFAFA" rx="12"/>
+<rect x=".5" y=".5" width="639" height="207" fill="none" stroke="#E5E7EB" rx="12"/>
+<text x="24" y="34" font-family="system-ui,sans-serif" font-size="16" font-weight="700" fill="#111827">viem-go Benchmark Summary</text>
+<rect x="491" y="18" width="129" height="26" fill="#00ADD8" rx="13"/>
+<text x="555.5" y="35" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="white">Go 3.6x faster</text>
+<rect x="24" y="54" width="592" height="24" fill="#F3F4F6" rx="12"/>
+<rect x="24" y="54" width="592" height="24" fill="#00ADD8" rx="12"/>
+<text x="320" y="70" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="white">22 Go wins &#183; 0 TS wins &#183; 0 ties (22 total)</text>
+<text x="24" y="114" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#374151">Call</text>
+<text x="24" y="128" font-family="system-ui,sans-serif" font-size="10" fill="#9CA3AF">6 benchmarks</text>
+<rect x="130" y="100" width="300" height="18" fill="#00ADD8" rx="4" opacity="0.85"/>
+<text x="440" y="114" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#00ADD8">80.9x</text>
+<text x="24" y="158" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#374151">Multicall</text>
+<text x="24" y="172" font-family="system-ui,sans-serif" font-size="10" fill="#9CA3AF">16 benchmarks</text>
+<rect x="130" y="144" width="79" height="18" fill="#00ADD8" rx="4" opacity="0.85"/>
+<text x="219" y="158" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#00ADD8">3.2x</text>
+<text x="320" y="198" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#D1D5DB">Benchmarked against Anvil (Mainnet Fork) &#183; Same RPC endpoint</text>
+</svg>

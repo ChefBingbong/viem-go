@@ -177,10 +177,20 @@ anvil-stop:
 		echo "No process found on port $(ANVIL_PORT)"; \
 	fi
 
+# Generate charts only (from existing results)
+charts:
+	@echo "Generating charts..."
+	@if [ -f "results/go-results.txt" ] && [ -f "results/ts-results.txt" ]; then \
+		bun run compare.ts; \
+	else \
+		echo "Error: Results files not found. Run 'make bench' first."; \
+		exit 1; \
+	fi
+
 # Clean results
 clean:
 	@echo "Cleaning results..."
-	rm -rf results/*.txt results/*.json results/*.md
+	rm -rf results/*.txt results/*.json results/*.md results/charts/
 	@echo "Done."
 
 # Clean everything including node_modules
